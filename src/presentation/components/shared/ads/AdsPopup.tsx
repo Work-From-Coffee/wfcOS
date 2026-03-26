@@ -17,12 +17,12 @@ const adSettings = {
 const adData = [
   {
     id: 1,
-    title: "NextJS Global Hackathon",
-    description: "WFC OS is the winner of the Highest Quality App category",
-    url: "https://workfromcoffee.com/blog/wfcos-hackathon-award-announcement",
+    title: "Work From Coffee",
+    description: "Open the app and build your focus stack in one desktop.",
+    url: "https://workfromcoffee.com",
     thumbnail: {
       type: "emoji",
-      content: "🏆",
+      content: "☕",
     },
   },
   {
@@ -47,12 +47,12 @@ const adData = [
   },
   {
     id: 4,
-    title: "Danny Postma SEO Blueprint",
-    description: "The Exact Blueprint That Ranked My Sites #1 on Google",
-    url: "https://www.dannypostma.com/seo-course?via=digitalcreatorhq",
+    title: "GitHub Repository",
+    description: "See the source code and follow the ongoing refactor work.",
+    url: "https://github.com/ekmigasari/wfcOS.git",
     thumbnail: {
       type: "emoji",
-      content: "🔍",
+      content: "🛠️",
     },
   },
   {

@@ -13,7 +13,6 @@ import {
 } from "@/application/atoms/musicPlayerAtom";
 
 // Keep a global reference to the YouTube player
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 let globalYoutubePlayer: any = null;
 
 interface VideoDisplayProps {

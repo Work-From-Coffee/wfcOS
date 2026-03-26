@@ -71,9 +71,6 @@ export const TaskbarMenu = () => {
           Menu
         </MenubarTrigger>
         <MenubarContent>
-          <MenubarItem inset onSelect={() => openUrl("/blog")}>
-            Blog
-          </MenubarItem>
           <MenubarItem
             inset
             onSelect={() => openUrl("https://workfromcoffee.featurebase.app")}
@@ -125,7 +122,7 @@ export const TaskbarMenu = () => {
         </MenubarTrigger>
         <MenubarContent>
           <MenubarItem disabled>
-            WFC OS<MenubarShortcut>v 2.3.1</MenubarShortcut>
+            WFC OS<MenubarShortcut>v 3.0.0</MenubarShortcut>
           </MenubarItem>
           <MenubarItem inset onSelect={openChangelogWindow}>
             Changelog<MenubarShortcut>history</MenubarShortcut>

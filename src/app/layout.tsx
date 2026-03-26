@@ -1,16 +1,13 @@
 import type { Metadata } from "next";
-import { Itim } from "next/font/google";
 import "@/presentation/styles/globals.css";
 import JotaiProvider from "@/providers/JotaiProvider";
 import { GoogleAnalytics } from "@next/third-parties/google";
 
-const font = Itim({ weight: "400", subsets: ["latin"] });
-
 export const metadata: Metadata = {
   metadataBase: new URL("https://workfromcoffee.com"),
-  title: "Work from Coffee | Award-Winning app for Focus & Productivity",
+  title: "Work from Coffee | Focus Workspace",
   description:
-    "Virtual desktop designed for deep focus and remote work productivity. All-in-one workspace with integrated to-do lists, timers, notepads, music, and ambience for distraction-free work.",
+    "Virtual desktop for deep focus and remote work productivity with integrated to-do lists, timers, notepads, music, and ambience.",
   openGraph: {
     images: "/metadata/wfc-og.png",
     title: "Work from Coffee",
@@ -45,7 +42,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={font.className}>
+      <body>
         <JotaiProvider>{children}</JotaiProvider>
         <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID || ""} />
       </body>

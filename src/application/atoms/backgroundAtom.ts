@@ -24,11 +24,8 @@ const storage = createJSONStorage<BackgroundSettings>(() => {
   }
   // Return a dummy storage object for SSR
   return {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     getItem: (_key) => null, // Always return null on server
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     setItem: (_key, _value) => {},
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     removeItem: (_key) => {},
   };
 });

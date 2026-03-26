@@ -1,39 +1,14 @@
-#Base Image
-FROM oven/bun
+FROM node:22-alpine
 
-# Set the working directory inside the container
 WORKDIR /app
 
-# Copy package.json and package-lock.json to the working directory
+RUN corepack enable
+
+COPY package.json pnpm-lock.yaml ./
+RUN pnpm install --frozen-lockfile
+
 COPY . .
 
-# Install dependencies
-RUN bun install 
+CMD ["pnpm", "dev"]
 
-# Run the application
-CMD ["bun", "dev"]
-
-# Expose port 3000
 EXPOSE 3000
-
-# If using prisma
-
-# #Base Image
-# FROM oven/bun
-
-# # Set the working directory inside the container
-# WORKDIR /api
-
-# # Copy working directory
-# COPY ./prisma ./
-# COPY . .
-
-# # Install dependencies
-# RUN bun install --ignore-scripts
-# RUN bunx prisma generate
-
-# # Run the application
-# CMD ["bun", "dev"]
-
-# # Expose port 3000
-# EXPOSE 3001

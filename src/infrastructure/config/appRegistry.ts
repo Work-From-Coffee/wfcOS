@@ -17,7 +17,6 @@ interface AppRegistryEntry {
   src: string; // Path to the app icon
   defaultSize: Size;
   minSize?: Size;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   component: React.ComponentType<any>;
   hidden?: boolean; // Flag to hide app from desktop icons
 }
@@ -26,7 +25,6 @@ interface AppRegistryEntry {
 export interface SettingsEntry {
   id: string;
   name: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   component: React.ComponentType<any>;
   icon: string;
 }
