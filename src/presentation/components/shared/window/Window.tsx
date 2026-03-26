@@ -1,9 +1,11 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
-import { useAtom } from "jotai";
+import { useAtom, useAtomValue } from "jotai";
+import { selectAtom } from "jotai/utils";
 import {
+  openWindowIdsAtom,
   windowRegistryAtom,
   closeWindowAtom,
   focusWindowAtom,
@@ -24,18 +26,79 @@ const CLOSE_SOUND = "window-close";
  * - Creating the portal container if it doesn't exist
  * - Handling window closing with sound effects
  */
+const WindowItem = React.memo(function WindowItem({
+  windowId,
+  onClose,
+  onFocus,
+}: {
+  windowId: string;
+  onClose: (windowId: string) => void;
+  onFocus: (windowId: string) => void;
+}) {
+  const windowAtom = useMemo(
+    () => selectAtom(windowRegistryAtom, (registry) => registry[windowId]),
+    [windowId]
+  );
+  const window = useAtomValue(windowAtom);
+
+  if (!window || !window.appId) {
+    return null;
+  }
+
+  const appConfig = appRegistry[window.appId];
+  if (!appConfig) {
+    console.error(`App config not found for appId: ${window.appId}`);
+    return null;
+  }
+
+  const AppComponent = appConfig.component;
+
+  return (
+    <WindowBase
+      windowId={window.id}
+      title={window.title}
+      appId={window.appId}
+      isOpen={window.isOpen}
+      isMinimized={window.isMinimized}
+      onClose={() => onClose(window.id)}
+      onFocus={() => onFocus(window.id)}
+      position={window.position}
+      size={window.size}
+      minSize={window.minSize}
+      zIndex={window.zIndex}
+    >
+      <AppComponent />
+    </WindowBase>
+  );
+});
+
 export const Window = () => {
   // Client-side only state to avoid hydration issues
   const [isMounted, setIsMounted] = useState(false);
+  const [portalContainer, setPortalContainer] = useState<HTMLElement | null>(
+    null
+  );
 
   // Window state management
-  const [windowRegistry] = useAtom(windowRegistryAtom);
+  const openWindowIds = useAtomValue(openWindowIdsAtom);
   const closeWindow = useAtom(closeWindowAtom)[1];
   const focusWindow = useAtom(focusWindowAtom)[1];
 
   // Handle client-side mounting
   useEffect(() => {
     setIsMounted(true);
+
+    let container = document.getElementById("window-portal-container");
+    if (!container) {
+      container = document.createElement("div");
+      container.id = "window-portal-container";
+      container.className = "fixed inset-0 z-[100]";
+      container.style.pointerEvents = "none";
+      container.setAttribute("aria-hidden", "true");
+      document.body.appendChild(container);
+    }
+
+    setPortalContainer(container);
   }, []);
 
   const handleCloseWindow = (windowId: string) => {
@@ -49,66 +112,20 @@ export const Window = () => {
 
   if (!isMounted) return null;
 
-  // Create portal container if it doesn't exist
-  let portalContainer = document.getElementById("window-portal-container");
-  if (!portalContainer && typeof document !== "undefined") {
-    portalContainer = document.createElement("div");
-    portalContainer.id = "window-portal-container";
-    portalContainer.className = "fixed inset-0 z-[100]";
-    portalContainer.style.pointerEvents = "none";
-    portalContainer.setAttribute("aria-hidden", "true");
-    document.body.appendChild(portalContainer);
-  }
-
   // If still no portal container, render nothing
   if (!portalContainer) return null;
-
-  // Get windows array
-  const allWindows = Object.values(windowRegistry);
 
   // Render all windows through the portal
   return createPortal(
     <>
-      {allWindows.map((window) => {
-        // Skip invalid window data
-        if (!window || !window.appId) {
-          console.error("Window data is incomplete:", window);
-          return null;
-        }
-
-        // Find app configuration
-        const appConfig = appRegistry[window.appId];
-        if (!appConfig) {
-          console.error(`App config not found for appId: ${window.appId}`);
-          return null;
-        }
-
-        // Get app component
-        const AppComponent = appConfig.component;
-        if (!AppComponent) {
-          console.error(`Component not found for appId: ${window.appId}`);
-          return null;
-        }
-
-        return (
-          <WindowBase
-            key={window.id}
-            windowId={window.id}
-            title={window.title}
-            appId={window.appId}
-            isOpen={window.isOpen}
-            isMinimized={window.isMinimized}
-            onClose={() => handleCloseWindow(window.id)}
-            onFocus={() => handleFocusWindow(window.id)}
-            position={window.position}
-            size={window.size}
-            minSize={window.minSize}
-            zIndex={window.zIndex}
-          >
-            <AppComponent />
-          </WindowBase>
-        );
-      })}
+      {openWindowIds.map((windowId) => (
+        <WindowItem
+          key={windowId}
+          windowId={windowId}
+          onClose={handleCloseWindow}
+          onFocus={handleFocusWindow}
+        />
+      ))}
     </>,
     portalContainer
   );

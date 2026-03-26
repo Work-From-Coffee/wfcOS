@@ -1,4 +1,5 @@
 import { atom } from "jotai";
+import { selectAtom } from "jotai/utils";
 import {
   loadFeatureState,
   saveFeatureState,
@@ -91,6 +92,18 @@ export const minimizedWindowsAtom = atom(
     Object.values(get(windowRegistryAtom))
       .filter((win) => win?.isMinimized) // Add null check
       .sort((a, b) => (a?.appId ?? "").localeCompare(b?.appId ?? "")) // Add null checks
+);
+
+export const openWindowIdsAtom = selectAtom(
+  windowRegistryAtom,
+  (registry) =>
+    Object.values(registry)
+      .filter((win) => win?.isOpen)
+      .sort((a, b) => (a?.zIndex ?? 0) - (b?.zIndex ?? 0))
+      .map((win) => win.id),
+  (prev, next) =>
+    prev.length === next.length &&
+    prev.every((windowId, index) => windowId === next[index])
 );
 
 // --- Window Management Action Atoms (Write-only) ---

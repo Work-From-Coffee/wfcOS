@@ -1,12 +1,16 @@
 "use client";
 
 import { useAtom } from "jotai";
+import dynamic from "next/dynamic";
 import { musicPlayerAtom } from "@/application/atoms/musicPlayerAtom";
 import PlayerControls from "./components/PlayerControls";
 import PlaylistManager from "./components/PlaylistManager";
-import VideoDisplay from "./components/VideoDisplay";
 import VolumeControl from "./components/VolumeControl";
 import ProgressBar from "./components/ProgressBar";
+
+const VideoDisplay = dynamic(() => import("./components/VideoDisplay"), {
+  ssr: false,
+});
 
 export const MusicPlayer = () => {
   const [playerState] = useAtom(musicPlayerAtom);
@@ -14,7 +18,9 @@ export const MusicPlayer = () => {
   return (
     <div className="flex flex-col h-full bg-card text-card-foreground">
       {/* Video Section */}
-      <VideoDisplay isVisible={playerState.showVideo} />
+      {playerState.currentSong ? (
+        <VideoDisplay isVisible={playerState.showVideo} />
+      ) : null}
 
       {/* Main Content Section */}
       <div className="flex-1 p-4 flex flex-col">

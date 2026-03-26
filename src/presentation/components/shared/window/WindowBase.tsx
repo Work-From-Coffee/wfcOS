@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useAtom } from "jotai";
 import {
   updateWindowPositionSizeAtom,
@@ -75,6 +75,20 @@ export const WindowBase = ({
   const currentResizeHandleRef = useRef<string | null>(null);
   const initialSizeRef = useRef<Size>({ width: 0, height: 0 });
   const initialPositionRef = useRef<Position>({ x: 0, y: 0 });
+  const [livePosition, setLivePosition] = useState(position);
+  const [liveSize, setLiveSize] = useState(size);
+  const livePositionRef = useRef(position);
+  const liveSizeRef = useRef(size);
+
+  useEffect(() => {
+    livePositionRef.current = position;
+    setLivePosition(position);
+  }, [position]);
+
+  useEffect(() => {
+    liveSizeRef.current = size;
+    setLiveSize(size);
+  }, [size]);
 
   // Auto-focus when window opens or is restored
   useEffect(() => {
@@ -82,6 +96,14 @@ export const WindowBase = ({
       focusWindow(windowId);
     }
   }, [isOpen, isMinimized, windowId, focusWindow]);
+
+  const commitWindowFrame = useCallback(() => {
+    updateWindowPositionSize({
+      id: windowId,
+      position: livePositionRef.current,
+      size: liveSizeRef.current,
+    });
+  }, [updateWindowPositionSize, windowId]);
 
   // Handle window dragStart
   const handleDragStart = (e: React.MouseEvent) => {
@@ -123,23 +145,17 @@ export const WindowBase = ({
 
       // On mobile, constrain window within viewport
       if (isMobileOrTablet) {
-        const maxX = window.innerWidth - size.width / 2;
+        const maxX = window.innerWidth - liveSizeRef.current.width / 2;
         const maxY = window.innerHeight - 40; // Leave room for window controls
         const constrainedX = Math.min(maxX, newX);
         const constrainedY = Math.min(maxY, newY);
-
-        updateWindowPositionSize({
-          id: windowId,
-          position: { x: constrainedX, y: constrainedY },
-          size,
-        });
+        const nextPosition = { x: constrainedX, y: constrainedY };
+        livePositionRef.current = nextPosition;
+        setLivePosition(nextPosition);
       } else {
-        // Regular desktop behavior
-        updateWindowPositionSize({
-          id: windowId,
-          position: { x: newX, y: newY },
-          size,
-        });
+        const nextPosition = { x: newX, y: newY };
+        livePositionRef.current = nextPosition;
+        setLivePosition(nextPosition);
       }
     }
   };
@@ -157,6 +173,8 @@ export const WindowBase = ({
     if (playSounds) {
       stopSound(DRAG_SOUND);
     }
+
+    commitWindowFrame();
 
     // Remove document-level event listeners
     document.removeEventListener("mousemove", handleDragMove);
@@ -243,12 +261,12 @@ export const WindowBase = ({
         }
       }
 
-      // Update window position and size
-      updateWindowPositionSize({
-        id: windowId,
-        position: { x: newX, y: newY },
-        size: { width: newWidth, height: newHeight },
-      });
+      const nextPosition = { x: newX, y: newY };
+      const nextSize = { width: newWidth, height: newHeight };
+      livePositionRef.current = nextPosition;
+      liveSizeRef.current = nextSize;
+      setLivePosition(nextPosition);
+      setLiveSize(nextSize);
     }
   };
 
@@ -262,10 +280,22 @@ export const WindowBase = ({
       stopSound(RESIZE_SOUND);
     }
 
+    commitWindowFrame();
+
     // Remove document-level event listeners
     document.removeEventListener("mousemove", handleResizeMove);
     document.removeEventListener("mouseup", handleResizeEnd);
   };
+
+  useEffect(
+    () => () => {
+      document.removeEventListener("mousemove", handleDragMove);
+      document.removeEventListener("mouseup", handleDragEnd);
+      document.removeEventListener("mousemove", handleResizeMove);
+      document.removeEventListener("mouseup", handleResizeEnd);
+    },
+    []
+  );
 
   // Handle window focus
   const handleFocus = () => {
@@ -302,8 +332,8 @@ export const WindowBase = ({
         windowId={windowId}
         appId={appId}
         title={title}
-        position={position}
-        size={size}
+        position={livePosition}
+        size={liveSize}
         zIndex={zIndex}
         isMobile={isMobileOrTablet}
         onTitleBarMouseDown={handleDragStart}

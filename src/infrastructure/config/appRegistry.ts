@@ -1,16 +1,53 @@
 import { Size } from "@/application/types/window";
 import React from "react";
-import { Timer } from "@/app/(timer)/Timer";
-import { BackgroundChanger } from "@/app/(settings)/(background)/background";
-import { SoundChanger } from "@/app/(settings)/(sound)/sound";
-import { MusicPlayer } from "@/app/(music-player)/MusicPlayer";
-import TodoList from "@/app/(to-do-list)/todoList";
-import { AmbiencePlayer } from "@/app/(ambience)/ambiencePlayer";
-import Notepad from "@/app/(notepad)/Notepad";
-import { ChangelogWindow } from "@/presentation/components/shared/taskbar/ChangelogWindow";
-import Bookmark from "@/app/(bookmark)/Bookmark";
-import { SettingsPanel } from "@/app/(settings)/SettingsPanel";
-import SessionLogApp from "@/app/(session-log)/SessionLogApp";
+import dynamic from "next/dynamic";
+
+const Timer = dynamic(
+  () => import("@/app/(timer)/Timer").then((mod) => mod.Timer),
+  { ssr: false }
+);
+const BackgroundChanger = dynamic(
+  () =>
+    import("@/app/(settings)/(background)/background").then(
+      (mod) => mod.BackgroundChanger
+    ),
+  { ssr: false }
+);
+const SoundChanger = dynamic(
+  () => import("@/app/(settings)/(sound)/sound").then((mod) => mod.SoundChanger),
+  { ssr: false }
+);
+const MusicPlayer = dynamic(
+  () => import("@/app/(music-player)/MusicPlayer").then((mod) => mod.MusicPlayer),
+  { ssr: false }
+);
+const TodoList = dynamic(() => import("@/app/(to-do-list)/todoList"), {
+  ssr: false,
+});
+const AmbiencePlayer = dynamic(
+  () => import("@/app/(ambience)/ambiencePlayer").then((mod) => mod.AmbiencePlayer),
+  { ssr: false }
+);
+const Notepad = dynamic(() => import("@/app/(notepad)/Notepad"), {
+  ssr: false,
+});
+const ChangelogWindow = dynamic(
+  () =>
+    import("@/presentation/components/shared/taskbar/ChangelogWindow").then(
+      (mod) => mod.ChangelogWindow
+    ),
+  { ssr: false }
+);
+const Bookmark = dynamic(() => import("@/app/(bookmark)/Bookmark"), {
+  ssr: false,
+});
+const SettingsPanel = dynamic(
+  () => import("@/app/(settings)/SettingsPanel").then((mod) => mod.SettingsPanel),
+  { ssr: false }
+);
+const SessionLogApp = dynamic(() => import("@/app/(session-log)/SessionLogApp"), {
+  ssr: false,
+});
 
 interface AppRegistryEntry {
   name: string; // The display name of the app
