@@ -1,13 +1,13 @@
 "use client";
 
+import { musicPlayerAtom } from "@/application/atoms/musicPlayerAtom";
+import { useOnlineStatus } from "@/application/hooks";
 import { useAtom } from "jotai";
 import dynamic from "next/dynamic";
-import { musicPlayerAtom } from "@/application/atoms/musicPlayerAtom";
 import PlayerControls from "./components/PlayerControls";
 import PlaylistManager from "./components/PlaylistManager";
-import VolumeControl from "./components/VolumeControl";
 import ProgressBar from "./components/ProgressBar";
-import { useOnlineStatus } from "@/application/hooks";
+import VolumeControl from "./components/VolumeControl";
 
 const VideoDisplay = dynamic(() => import("./components/VideoDisplay"), {
   ssr: false,
@@ -18,14 +18,14 @@ export const MusicPlayer = () => {
   const { isOnline } = useOnlineStatus();
 
   return (
-    <div className="flex flex-col h-full bg-card text-card-foreground">
+    <div className="flex flex-col bg-card text-card-foreground">
       {/* Video Section */}
       {playerState.currentSong ? (
         <VideoDisplay isVisible={playerState.showVideo} />
       ) : null}
 
       {/* Main Content Section */}
-      <div className="flex-1 p-4 flex flex-col">
+      <div className="flex flex-col p-4">
         {/* Song Info & Controls */}
         <div className="mb-4">
           {/* Song Title */}
