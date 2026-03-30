@@ -95,15 +95,15 @@ export const AnnouncementPopup = () => {
           )}
 
         <DialogFooter className="flex-row justify-end gap-2">
-          <Button className="text-white" onClick={handleClose}>
-            {template.readyLabel || "Continue"}
-          </Button>
           <Button
             variant="secondary"
             className="text-white"
             onClick={handleRedirect}
           >
             Go to New Site
+          </Button>
+          <Button className="text-white" onClick={handleClose}>
+            {template.readyLabel || "Continue"}
           </Button>
         </DialogFooter>
       </DialogContent>

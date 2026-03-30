@@ -59,6 +59,7 @@ export const MinimizedIcons = () => {
                 alt={window.title}
                 width={20}
                 height={20}
+                style={{ height: "auto" }}
               />
             ) : (
               <div className="w-6 h-6 bg-secondary/50 rounded-sm flex items-center justify-center text-xs text-white">

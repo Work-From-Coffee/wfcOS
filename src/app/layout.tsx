@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import "@/presentation/styles/globals.css";
 import JotaiProvider from "@/providers/JotaiProvider";
 import { GoogleAnalytics } from "@next/third-parties/google";
-import { ServiceWorkerCleanup } from "@/presentation/components/shared/pwa/ServiceWorkerCleanup";
 
 export const viewport = {
   themeColor: "#2d2417",
@@ -51,7 +50,6 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <JotaiProvider>{children}</JotaiProvider>
-        <ServiceWorkerCleanup />
         {gaId ? <GoogleAnalytics gaId={gaId} /> : null}
       </body>
     </html>

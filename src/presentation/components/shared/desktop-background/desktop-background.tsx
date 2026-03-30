@@ -7,7 +7,6 @@ import Image from "next/image";
 
 export const DesktopBackground = () => {
   const settings = useAtomValue(activeBackgroundAtom);
-  const isDefaultBackground = settings.url === "/background/bg-2.webp";
 
   // If no background is selected, return just a background color
   if (!settings.url) {
@@ -51,7 +50,6 @@ export const DesktopBackground = () => {
         src={settings.url}
         alt="Desktop background"
         fill
-        priority={isDefaultBackground}
         quality={80}
         sizes="100vw"
         className={getObjectFit()}

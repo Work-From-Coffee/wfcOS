@@ -63,7 +63,14 @@ export const TaskbarMenu = () => {
     <>
       <MenubarMenu>
         <div className="px-1">
-          <Image src="/icons/coffee.png" alt="coffee" width={20} height={20} />
+          <Image
+            src="/icons/coffee.png"
+            alt="coffee"
+            width={32}
+            height={34}
+            loading="eager"
+            style={{ width: "auto", height: "20px" }}
+          />
         </div>
       </MenubarMenu>
       <MenubarMenu>
@@ -101,7 +108,13 @@ export const TaskbarMenu = () => {
                   onSelect={() => openApp(appId)}
                   className="flex items-center gap-2"
                 >
-                  <Image src={app.src} alt={app.name} width={16} height={16} />
+                  <Image
+                    src={app.src}
+                    alt={app.name}
+                    width={16}
+                    height={16}
+                    style={{ height: "auto" }}
+                  />
                   {app.name}
                 </MenubarItem>
               )
