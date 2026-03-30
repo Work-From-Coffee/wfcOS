@@ -1,0 +1,72 @@
+name: CI/CD WFCOS
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      APP_DIR: /root/apps/wfcos
+      REPO_SSH_URL: git@github.com:${{ github.repository }}.git
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up SSH
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Deploy to VPS
+        run: |
+          ssh -T -o StrictHostKeyChecking=no \
+            "${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}" \
+            "APP_DIR='${APP_DIR}' REPO_SSH_URL='${REPO_SSH_URL}' bash -s" <<'EOF'
+              set -euo pipefail
+              trap 'echo "Deploy failed. Current container status:"; docker compose ps || true; echo "Recent app logs:"; docker compose logs --tail=50 app || true' ERR
+
+              echo "Go to WFCOS project..."
+              cd "$APP_DIR"
+
+              echo "Point server checkout to repository..."
+              git remote set-url origin "$REPO_SSH_URL"
+
+              echo "Fetch latest code..."
+              git fetch origin main
+              git checkout main
+              git reset --hard origin/main
+
+              echo "Build latest app image..."
+              docker compose build --pull app
+
+              APP_IMAGE_ID="$(docker compose images -q app)"
+
+              echo "Remove old application container..."
+              docker compose rm -sf app || true
+
+              echo "Start application service with forced recreation..."
+              docker compose up -d --no-deps --force-recreate app
+
+              echo "Check container..."
+              docker compose ps
+
+              RUNNING_APP_CONTAINER="$(docker compose ps -q app)"
+              RUNNING_APP_IMAGE_ID="$(docker inspect -f '{{.Image}}' "$RUNNING_APP_CONTAINER")"
+
+              test -n "$APP_IMAGE_ID"
+              test -n "$RUNNING_APP_CONTAINER"
+              test "$RUNNING_APP_IMAGE_ID" = "$APP_IMAGE_ID"
+
+              echo "Recent app logs..."
+              docker compose logs --tail=20 app
+
+              echo "Deploy done!"
+          EOF
