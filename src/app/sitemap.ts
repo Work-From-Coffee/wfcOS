@@ -1,8 +1,8 @@
-export const baseUrl = "https://workfromcoffee.com";
+import { siteUrl } from "@/infrastructure/config/site";
 
 export default async function sitemap() {
   return [""].map((route) => ({
-    url: `${baseUrl}${route}`,
+    url: `${siteUrl}${route}`,
     lastModified: new Date().toISOString().split("T")[0],
   }));
 }

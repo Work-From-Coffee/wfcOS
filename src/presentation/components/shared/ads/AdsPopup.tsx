@@ -1,131 +1,102 @@
 "use client";
 
-import type React from "react";
-
+import type { MouseEvent } from "react";
 import { useState, useEffect, useCallback, useRef } from "react";
-import { ArrowUpRight } from "lucide-react";
-// import { Button } from "@/presentation/components/ui/button";
+import { ArrowUpRight, X } from "lucide-react";
 import Image from "next/image";
+import { Button } from "@/presentation/components/ui/button";
+import { adData, adsPopupSettings } from "@/infrastructure/config/adsData";
 import { openExternalUrl } from "@/infrastructure/utils/externalNavigation";
-
-// Easily configurable time settings (all in milliseconds)
-const adSettings = {
-  adRotationInterval: 8000, // Time between ad changes (8 seconds)
-  adReappearInterval: 600000, // Time before ads show again after closing/completing cycle (10 minutes)
-};
-
-// Sample ad data with both image and emoji options
-const adData = [
-  {
-    id: 1,
-    title: "Work From Coffee",
-    description: "Open the app and build your focus stack in one desktop.",
-    url: "https://workfromcoffee.com",
-    thumbnail: {
-      type: "emoji",
-      content: "☕",
-    },
-  },
-  {
-    id: 2,
-    title: "Send us Feedback",
-    description: "Got any feedback? We'd love to hear from you!",
-    url: "https://workfromcoffee.featurebase.app",
-    thumbnail: {
-      type: "emoji",
-      content: "💬",
-    },
-  },
-  {
-    id: 3,
-    title: "Screen Studio",
-    description: "Beautiful screen recordings in minutes",
-    url: "https://screenstudio.lemonsqueezy.com?aff=dK6dm",
-    thumbnail: {
-      type: "emoji",
-      content: "🎥",
-    },
-  },
-  {
-    id: 4,
-    title: "GitHub Repository",
-    description: "See the source code and follow the ongoing refactor work.",
-    url: "https://github.com/ekmigasari/wfcOS.git",
-    thumbnail: {
-      type: "emoji",
-      content: "🛠️",
-    },
-  },
-  {
-    id: 5,
-    title: "Codefast",
-    description: "Learn to code in weeks, not months",
-    url: "https://codefa.st/?via=digitalcreatorhq",
-    thumbnail: {
-      type: "emoji",
-      content: "💻",
-    },
-  },
-];
 
 export const AdsPopup = () => {
   const [isVisible, setIsVisible] = useState(true);
   const [currentAdIndex, setCurrentAdIndex] = useState(0);
   const [isChanging, setIsChanging] = useState(false);
   const cycleCompleteRef = useRef(false);
+  const hideTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const reappearTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  //   // Handle closing the ad
-  //   const handleClose = useCallback((e: React.MouseEvent) => {
-  //     e.stopPropagation();
-  //     setIsVisible(false);
+  const clearTimers = useCallback(() => {
+    if (hideTimeoutRef.current) {
+      clearTimeout(hideTimeoutRef.current);
+      hideTimeoutRef.current = null;
+    }
 
-  //     // Reappear after configured interval
-  //     setTimeout(() => {
-  //       setCurrentAdIndex(0);
-  //       cycleCompleteRef.current = false;
-  //       setIsVisible(true);
-  //     }, adSettings.adReappearInterval);
-  //   }, []);
+    if (reappearTimeoutRef.current) {
+      clearTimeout(reappearTimeoutRef.current);
+      reappearTimeoutRef.current = null;
+    }
+  }, []);
 
-  // Handle clicking on the ad
+  const scheduleReappear = useCallback(() => {
+    if (adsPopupSettings.reappearDurationMs <= 0) {
+      cycleCompleteRef.current = false;
+      setCurrentAdIndex(0);
+      setIsVisible(true);
+      return;
+    }
+
+    reappearTimeoutRef.current = setTimeout(() => {
+      setCurrentAdIndex(0);
+      cycleCompleteRef.current = false;
+      setIsChanging(false);
+      setIsVisible(true);
+    }, adsPopupSettings.reappearDurationMs);
+  }, []);
+
+  const handleClose = useCallback(
+    (event: MouseEvent<HTMLButtonElement>) => {
+      event.stopPropagation();
+      clearTimers();
+      setIsChanging(false);
+      setIsVisible(false);
+      cycleCompleteRef.current = false;
+      scheduleReappear();
+    },
+    [clearTimers, scheduleReappear],
+  );
+
   const handleAdClick = useCallback(() => {
     if (adData[currentAdIndex]?.url) {
       openExternalUrl(adData[currentAdIndex].url);
     }
   }, [currentAdIndex]);
 
-  // Rotate ads at the configured interval
   useEffect(() => {
-    if (!isVisible || cycleCompleteRef.current) return;
+    if (
+      !adsPopupSettings.enabled ||
+      !isVisible ||
+      cycleCompleteRef.current ||
+      adData.length <= 1
+    ) {
+      return;
+    }
 
-    const interval = setInterval(() => {
+    hideTimeoutRef.current = setTimeout(() => {
       setIsChanging(true);
 
-      // Wait for fade-out animation to complete
-      setTimeout(() => {
+      reappearTimeoutRef.current = setTimeout(() => {
         const nextIndex = (currentAdIndex + 1) % adData.length;
         setCurrentAdIndex(nextIndex);
 
-        // If we've shown all ads, mark the cycle as complete
         if (nextIndex === 0 && currentAdIndex === adData.length - 1) {
           cycleCompleteRef.current = true;
           setIsVisible(false);
-
-          // Reappear after configured interval
-          setTimeout(() => {
-            cycleCompleteRef.current = false;
-            setIsVisible(true);
-          }, adSettings.adReappearInterval);
+          scheduleReappear();
         }
 
         setIsChanging(false);
-      }, 3000); // Duration of fade-out animation
-    }, adSettings.adRotationInterval);
+      }, adsPopupSettings.transitionDurationMs);
+    }, adsPopupSettings.displayDurationMs);
 
-    return () => clearInterval(interval);
-  }, [isVisible, currentAdIndex]);
+    return clearTimers;
+  }, [clearTimers, currentAdIndex, isVisible, scheduleReappear]);
 
-  if (!isVisible) return null;
+  useEffect(() => clearTimers, [clearTimers]);
+
+  if (!adsPopupSettings.enabled || adData.length === 0 || !isVisible) {
+    return null;
+  }
 
   const currentAd = adData[currentAdIndex];
   const isEmoji = currentAd.thumbnail?.type === "emoji";
@@ -137,17 +108,18 @@ export const AdsPopup = () => {
         hover:shadow-xl transition-all cursor-pointer w-full sm:w-[280px] ${
           isChanging ? "opacity-0" : "opacity-100"
         }`}
-        style={{ transition: "opacity 1000ms ease-in-out" }}
+        style={{
+          transition: `opacity ${adsPopupSettings.transitionDurationMs}ms ease-in-out`,
+        }}
         onClick={handleAdClick}
       >
         <div className="p-3 flex items-start gap-3">
-          {/* Thumbnail - either emoji or image */}
           {isEmoji ? (
             <div className="shrink-0 w-8 h-8 flex items-center justify-center text-2xl">
               {currentAd.thumbnail.content}
             </div>
           ) : (
-            <div className="relative shrink-0 w-8 h-8 rounded-full overflow-hidden">
+            <div className="relative shrink-0 w-8 h-8 overflow-hidden">
               <Image
                 src={currentAd.thumbnail?.content || "/placeholder.svg"}
                 alt=""
@@ -158,29 +130,32 @@ export const AdsPopup = () => {
               />
             </div>
           )}
-          {/* Content */}
-          <div className="flex-1 min-w-0">
-            {/* Title */}
+
+          <div className="flex-1 min-w-0 gap-2">
             <h3 className="text-sm font-medium text-white mb-0.5">
               {currentAd.title}
             </h3>
 
-            {/* Description */}
-            <p className="text-xs text-gray-400 line-clamp-2">
+            <p className="text-xs text-gray-400 line-clamp-3">
               {currentAd.description}
             </p>
           </div>
-          {/* Close button */}
-          {/* <Button
-            variant="ghost"
-            size="icon"
-            className="h-5 w-5 -mt-1 -mr-1 text-gray-400 hover:text-white opacity-0 group-hover:opacity-100 transition-opacity"
-            onClick={handleClose}
-            aria-label="Close advertisement"
-          >
-            <X className="h-3 w-3" />
-          </Button> */}
-          <ArrowUpRight className="h-5 w-5 -mt-1 -mr-1 text-gray-400 hover:text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+
+          <div className="flex items-start gap-1">
+            {adsPopupSettings.showCloseButton ? (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-5 w-5 -mt-1 text-gray-400 hover:text-white opacity-0 group-hover:opacity-100 transition-opacity"
+                onClick={handleClose}
+                aria-label="Close advertisement"
+              >
+                <X className="h-3 w-3" />
+              </Button>
+            ) : null}
+
+            <ArrowUpRight className="h-5 w-5 -mt-1 -mr-1 text-gray-400 hover:text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+          </div>
         </div>
       </div>
     </div>

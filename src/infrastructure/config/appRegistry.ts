@@ -7,9 +7,7 @@ import { MusicPlayer } from "@/app/(music-player)/MusicPlayer";
 import TodoList from "@/app/(to-do-list)/todoList";
 import { AmbiencePlayer } from "@/app/(ambience)/ambiencePlayer";
 import Notepad from "@/app/(notepad)/Notepad";
-import {
-  ChangelogWindow,
-} from "@/presentation/components/shared/taskbar/ChangelogWindow";
+import { ChangelogWindow } from "@/presentation/components/shared/taskbar/ChangelogWindow";
 import Bookmark from "@/app/(bookmark)/Bookmark";
 import { SettingsPanel } from "@/app/(settings)/SettingsPanel";
 import SessionLogApp from "@/app/(session-log)/SessionLogApp";
@@ -140,6 +138,14 @@ export const appRegistry: Record<string, AppRegistryEntry> = {
     minSize: { width: 320, height: 400 },
     component: SessionLogApp,
     externalUrl: "https://beta.workfromcoffee.com/",
+  },
+  community: {
+    name: "Community",
+    src: "/icons/doughnut.png",
+    defaultSize: { width: 400, height: 600 },
+    minSize: { width: 320, height: 400 },
+    component: SessionLogApp,
+    externalUrl: "https://discord.gg/yPQ62P5BBr",
   },
   giveTips: {
     name: "Buy Us a Coffee",

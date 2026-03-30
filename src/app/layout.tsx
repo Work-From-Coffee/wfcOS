@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import "@/presentation/styles/globals.css";
+import { siteUrl } from "@/infrastructure/config/site";
+import { ServiceWorkerRegistration } from "@/presentation/components/shared/service-worker/ServiceWorkerRegistration";
 import JotaiProvider from "@/providers/JotaiProvider";
 import { GoogleAnalytics } from "@next/third-parties/google";
-import { ServiceWorkerRegistration } from "@/presentation/components/shared/service-worker/ServiceWorkerRegistration";
 
 export const viewport = {
   themeColor: "#2d2417",
@@ -11,7 +12,7 @@ export const viewport = {
 const gaId = process.env.NEXT_PUBLIC_GA_ID;
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://workfromcoffee.com"),
+  metadataBase: new URL(siteUrl),
   manifest: "/manifest.webmanifest",
   title: "Work from Coffee | Focus Workspace",
   description:
@@ -21,7 +22,7 @@ export const metadata: Metadata = {
     title: "Work from Coffee",
     description:
       "Virtual desktop designed for deep focus and remote work productivity. All-in-one workspace with integrated to-do lists, timers, notepads, music, and ambience for distraction-free work.",
-    url: "https://workfromcoffee.com",
+    url: siteUrl,
     siteName: "Work from Coffee",
     locale: "en_US",
     type: "website",
