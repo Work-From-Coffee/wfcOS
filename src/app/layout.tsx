@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "@/presentation/styles/globals.css";
 import JotaiProvider from "@/providers/JotaiProvider";
 import { GoogleAnalytics } from "@next/third-parties/google";
-import { ServiceWorkerRegistration } from "@/presentation/components/shared/pwa/ServiceWorkerRegistration";
+import { ServiceWorkerCleanup } from "@/presentation/components/shared/pwa/ServiceWorkerCleanup";
 
 export const viewport = {
   themeColor: "#2d2417",
@@ -12,7 +12,6 @@ const gaId = process.env.NEXT_PUBLIC_GA_ID;
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://workfromcoffee.com"),
-  manifest: "/manifest.webmanifest",
   title: "Work from Coffee | Focus Workspace",
   description:
     "Virtual desktop for deep focus and remote work productivity with integrated to-do lists, timers, notepads, music, and ambience.",
@@ -52,7 +51,7 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <JotaiProvider>{children}</JotaiProvider>
-        <ServiceWorkerRegistration />
+        <ServiceWorkerCleanup />
         {gaId ? <GoogleAnalytics gaId={gaId} /> : null}
       </body>
     </html>

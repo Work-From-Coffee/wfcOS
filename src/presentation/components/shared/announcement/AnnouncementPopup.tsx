@@ -95,12 +95,8 @@ export const AnnouncementPopup = () => {
           )}
 
         <DialogFooter className="flex-row justify-end gap-2">
-          <Button
-            variant="secondary"
-            className="text-white"
-            onClick={handleClose}
-          >
-            {template.readyLabel || "Ready"}
+          <Button className="text-white" onClick={handleClose}>
+            {template.readyLabel || "Continue"}
           </Button>
           <Button
             variant="secondary"
