@@ -62,11 +62,15 @@ export function StorageMigrationApp() {
       return;
     }
 
-    const targetWindow = window.open(STORAGE_MIGRATION_TARGET_URL, "_blank");
+    const targetWindow = window.navigator.onLine
+      ? window.open(STORAGE_MIGRATION_TARGET_URL, "_blank")
+      : null;
 
     if (!targetWindow) {
       setStatus(
-        "Your browser blocked the new tab. Please allow popups and try again.",
+        window.navigator.onLine
+          ? "Your browser blocked the new tab. Please allow popups and try again."
+          : "Migration needs an internet connection to reach the new website.",
       );
       return;
     }

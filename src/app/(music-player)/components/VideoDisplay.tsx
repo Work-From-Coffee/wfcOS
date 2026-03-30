@@ -11,6 +11,7 @@ import {
   updatePlayerInternalsAtom,
   setPlayerProgressAtom,
 } from "@/application/atoms/musicPlayerAtom";
+import { useOnlineStatus } from "@/application/hooks";
 
 // Keep a global reference to the YouTube player
 let globalYoutubePlayer: any = null;
@@ -26,6 +27,7 @@ const VideoDisplay = ({ isVisible }: VideoDisplayProps) => {
   const updatePlayerInternals = useSetAtom(updatePlayerInternalsAtom);
   const nextSong = useSetAtom(nextSongAtom);
   const togglePlayPause = useSetAtom(playPauseAtom);
+  const { isOnline } = useOnlineStatus();
 
   const playerRef = useRef<ReactPlayer>(null);
 
@@ -139,8 +141,17 @@ const VideoDisplay = ({ isVisible }: VideoDisplayProps) => {
           : "h-0 opacity-0 overflow-hidden pointer-events-none"
       }`}
     >
-      {playerState.currentSong && (
+      {!isOnline ? (
+        <div className="flex h-full items-center justify-center rounded-md border border-dashed border-border bg-muted/50 px-4 text-center text-sm text-muted-foreground">
+          Music video playback is unavailable offline.
+        </div>
+      ) : null}
+      {isOnline && playerState.currentSong ? (
         <ReactPlayer
+          style={{
+            borderRadius: "0.375rem",
+            overflow: "hidden",
+          }}
           ref={playerRef}
           url={playerState.currentSong.url}
           playing={playerState.isPlaying}
@@ -148,10 +159,6 @@ const VideoDisplay = ({ isVisible }: VideoDisplayProps) => {
           controls={false} // Use our custom controls
           width="100%"
           height="100%"
-          style={{
-            borderRadius: "0.375rem",
-            overflow: "hidden",
-          }}
           onReady={(player) => {
             setLoading(false);
             console.log("Player ready");
@@ -196,7 +203,7 @@ const VideoDisplay = ({ isVisible }: VideoDisplayProps) => {
           }}
           config={playerConfig} // Pass the typed config object
         />
-      )}
+      ) : null}
     </div>
   );
 };

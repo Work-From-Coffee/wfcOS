@@ -3,13 +3,11 @@
 import { useEffect, useRef } from "react";
 import { useAtom, useAtomValue } from "jotai";
 import {
-  restartAndGoAtom,
   stopAlarmAtom,
   timerAtom,
 } from "@/application/atoms/timerAtom";
 import {
   addSessionAtom,
-  selectedTaskForTimerAtom,
 } from "@/application/atoms/sessionAtoms";
 import { formatTime, getDisplayTitle } from "./utils/timerUtils";
 
@@ -22,45 +20,89 @@ import { formatTime, getDisplayTitle } from "./utils/timerUtils";
 export const TimerManager = () => {
   const [timerState, setTimerState] = useAtom(timerAtom);
   const { isAlarming } = useAtomValue(timerAtom);
-  const selectedTaskId = useAtomValue(selectedTaskForTimerAtom);
   const [, addNewSession] = useAtom(addSessionAtom);
-  const [, restart] = useAtom(restartAndGoAtom);
   const [, stopAlarm] = useAtom(stopAlarmAtom);
   const workerRef = useRef<Worker | null>(null);
   const alarmAudioRef = useRef<HTMLAudioElement | null>(null);
   const originalTitle = useRef<string>("");
+  const timerStateRef = useRef(timerState);
+
+  useEffect(() => {
+    timerStateRef.current = timerState;
+  }, [timerState]);
+
+  const stopAlarmPlayback = () => {
+    if (!alarmAudioRef.current) return;
+
+    alarmAudioRef.current.pause();
+    alarmAudioRef.current.currentTime = 0;
+    alarmAudioRef.current.onended = null;
+    alarmAudioRef.current = null;
+  };
+
+  const startAlarmPlayback = () => {
+    stopAlarmPlayback();
+
+    const audio = new Audio("/sounds/timeup.mp3");
+    alarmAudioRef.current = audio;
+    audio.onended = () => {
+      stopAlarm();
+      alarmAudioRef.current = null;
+    };
+
+    audio.play().catch((error) => {
+      console.error("Error playing timer completion sound:", error);
+      alarmAudioRef.current = null;
+    });
+  };
+
+  const logCompletedSession = (state = timerStateRef.current) => {
+    if (
+      state.timerSetting !== "work25" ||
+      !state.sessionStartTime ||
+      !state.workCycleDuration ||
+      state.completionLogged
+    ) {
+      return false;
+    }
+
+    addNewSession({
+      taskId: state.activeTaskId,
+      startTime: state.sessionStartTime,
+      endTime: state.expectedEndTime ?? Date.now(),
+      duration: Math.round(state.workCycleDuration / 60),
+    });
+
+    return true;
+  };
 
   // Effect to handle manual alarm stop
   useEffect(() => {
-    // If isAlarming is false and there's an active alarm sound, stop it.
     if (!isAlarming && alarmAudioRef.current) {
-      alarmAudioRef.current.pause();
-      alarmAudioRef.current.currentTime = 0;
-      // Remove the onended listener to prevent auto-restarting
-      alarmAudioRef.current.onended = null;
-      alarmAudioRef.current = null;
+      stopAlarmPlayback();
     }
   }, [isAlarming]);
 
-  // Initialize web worker and handle notifications - runs once on mount
   useEffect(() => {
-    // Only run in browser context
+    if (timerState.isAlarming && !alarmAudioRef.current) {
+      startAlarmPlayback();
+    }
+  }, [timerState.isAlarming]);
+
+  // Initialize web worker and recover timer state - runs once on mount
+  useEffect(() => {
     if (typeof window === "undefined") return;
 
-    // Store the original document title
     originalTitle.current = document.title;
 
-    // Create worker with the new path
     const worker = new Worker("/lib/timerWorker.js");
     workerRef.current = worker;
 
-    // Handle messages from worker
     worker.onmessage = (e) => {
       const { type, timeRemaining } = e.data;
 
       switch (type) {
         case "tick":
-          // Update time remaining
           setTimerState((prev) => ({
             ...prev,
             timeRemaining: timeRemaining,
@@ -68,25 +110,10 @@ export const TimerManager = () => {
           break;
 
         case "complete":
-          // Timer completed - play sound directly using Audio API
-          const audio = new Audio("/sounds/timeup.mp3");
-          alarmAudioRef.current = audio;
-
-          // When the sound finishes, transition the state to allow restart
-          audio.onended = () => {
-            stopAlarm();
-            alarmAudioRef.current = null;
-          };
-
-          audio.play().catch((error) => {
-            console.error("Error playing timer completion sound:", error);
-            alarmAudioRef.current = null; // Clean up on error
-          });
-
-          // Show completion message in browser title
+          const didLogCompletion = logCompletedSession();
+          startAlarmPlayback();
           document.title = "Time is up!";
 
-          // Show notification if permitted
           if (
             typeof Notification !== "undefined" &&
             Notification.permission === "granted"
@@ -97,54 +124,38 @@ export const TimerManager = () => {
             });
           }
 
-          // Log session if it was a work timer
-          if (
-            timerState.timerSetting === "work25" &&
-            timerState.sessionStartTime &&
-            timerState.workCycleDuration
-          ) {
-            const endTime = Date.now();
-            const durationInMinutes = Math.round(
-              timerState.workCycleDuration / 60
-            );
-
-            addNewSession({
-              taskId: selectedTaskId,
-              startTime: timerState.sessionStartTime,
-              endTime: endTime,
-              duration: durationInMinutes, // Ensure this is in minutes
-            });
-          }
-
           setTimerState((prev) => ({
             ...prev,
             isRunning: false,
-            sessionStartTime: null, // Clear session start time after completion
-            isAlarming: true, // Start the alarm
-            // workCycleDuration can remain as is, or be reset, depends on desired flow for next timer start
+            timeRemaining: 0,
+            isAlarming: true,
+            startedAt: null,
+            expectedEndTime: null,
+            completionLogged: prev.completionLogged || didLogCompletion,
           }));
           break;
 
         case "reset":
-          // Timer was reset by the worker
           setTimerState((prev) => ({
             ...prev,
             isRunning: false,
+            startedAt: null,
+            expectedEndTime: null,
           }));
           break;
 
         case "paused":
-          // Timer was paused
           setTimerState((prev) => ({
             ...prev,
             timeRemaining: timeRemaining,
             isRunning: false,
+            startedAt: null,
+            expectedEndTime: null,
           }));
           break;
       }
     };
 
-    // Listen for global reset event
     const handleReset = () => {
       if (workerRef.current) {
         workerRef.current.postMessage({
@@ -156,10 +167,8 @@ export const TimerManager = () => {
       document.title = originalTitle.current;
     };
 
-    // Add event listener for resets triggered elsewhere
     window.addEventListener("timer-reset", handleReset);
 
-    // Request notification permission when TimerManager mounts
     if (
       typeof Notification !== "undefined" &&
       Notification.permission !== "granted" &&
@@ -168,27 +177,62 @@ export const TimerManager = () => {
       Notification.requestPermission();
     }
 
-    // Cleanup
+    const recoverTimerState = () => {
+      const snapshot = timerStateRef.current;
+
+      if (snapshot.isAlarming) {
+        document.title = "Time is up!";
+        startAlarmPlayback();
+        return;
+      }
+
+      if (!snapshot.isRunning || !snapshot.expectedEndTime) {
+        return;
+      }
+
+      const now = Date.now();
+      const remainingSeconds = Math.max(
+        0,
+        Math.ceil((snapshot.expectedEndTime - now) / 1000)
+      );
+
+      if (remainingSeconds > 0) {
+        setTimerState((prev) => ({
+          ...prev,
+          timeRemaining: remainingSeconds,
+          isRunning: true,
+          startedAt: now,
+        }));
+        return;
+      }
+
+      const didLogCompletion = logCompletedSession(snapshot);
+      setTimerState((prev) => ({
+        ...prev,
+        timeRemaining: 0,
+        isRunning: false,
+        isAlarming: true,
+        startedAt: null,
+        expectedEndTime: null,
+        completionLogged: prev.completionLogged || didLogCompletion,
+      }));
+
+      document.title = "Time is up!";
+      startAlarmPlayback();
+    };
+
+    recoverTimerState();
+
     return () => {
       if (workerRef.current) {
         workerRef.current.terminate();
         workerRef.current = null;
       }
       window.removeEventListener("timer-reset", handleReset);
-
-      // Restore original title on unmount
+      stopAlarmPlayback();
       document.title = originalTitle.current;
     };
-  }, [
-    setTimerState,
-    selectedTaskId,
-    addNewSession,
-    timerState.timerSetting,
-    timerState.sessionStartTime,
-    timerState.workCycleDuration,
-    restart,
-    stopAlarm,
-  ]); // Only depends on the stable setTimerState function
+  }, [addNewSession, setTimerState, stopAlarm]);
 
   // Update document title when timer state changes
   useEffect(() => {
@@ -219,13 +263,11 @@ export const TimerManager = () => {
     if (!worker) return;
 
     if (timerState.isRunning) {
-      // Start/resume the timer
       worker.postMessage({
         command: "start",
         timeRemaining: timerState.timeRemaining,
       });
     } else {
-      // Pause the timer
       worker.postMessage({
         command: "pause",
       });

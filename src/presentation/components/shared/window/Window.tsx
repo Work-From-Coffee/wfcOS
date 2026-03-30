@@ -13,9 +13,27 @@ import {
 import { WindowBase } from "./WindowBase";
 import { appRegistry } from "@/infrastructure/config/appRegistry";
 import { playSound } from "@/infrastructure/lib/utils";
+import { useOnlineStatus } from "@/application/hooks";
 
 // Sound type constants
 const CLOSE_SOUND = "window-close";
+
+const OfflineFeatureFallback = ({
+  title,
+  message,
+}: {
+  title: string;
+  message: string;
+}) => {
+  return (
+    <div className="flex h-full flex-col justify-center gap-3 bg-card p-6 text-card-foreground">
+      <h2 className="text-xl font-semibold text-primary">{title}</h2>
+      <p className="rounded-md border border-amber-500/40 bg-amber-500/10 px-4 py-3 text-sm leading-6 text-amber-700">
+        {message}
+      </p>
+    </div>
+  );
+};
 
 /**
  * Window Component
@@ -35,6 +53,7 @@ const WindowItem = React.memo(function WindowItem({
   onClose: (windowId: string) => void;
   onFocus: (windowId: string) => void;
 }) {
+  const { isOnline } = useOnlineStatus();
   const windowAtom = useMemo(
     () => selectAtom(windowRegistryAtom, (registry) => registry[windowId]),
     [windowId]
@@ -51,7 +70,8 @@ const WindowItem = React.memo(function WindowItem({
     return null;
   }
 
-  const AppComponent = appConfig.component;
+  const isBlockedOffline = appConfig.onlineOnly && !isOnline;
+  const AppComponent = isBlockedOffline ? null : appConfig.component;
 
   return (
     <WindowBase
@@ -67,7 +87,17 @@ const WindowItem = React.memo(function WindowItem({
       minSize={window.minSize}
       zIndex={window.zIndex}
     >
-      <AppComponent />
+      {isBlockedOffline ? (
+        <OfflineFeatureFallback
+          title={appConfig.name}
+          message={
+            appConfig.offlineMessage ||
+            "This feature needs an internet connection."
+          }
+        />
+      ) : AppComponent ? (
+        <AppComponent />
+      ) : null}
     </WindowBase>
   );
 });

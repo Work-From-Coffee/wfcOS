@@ -18,13 +18,21 @@ import {
   type AnnouncementTemplate,
 } from "@/infrastructure/utils/announcement";
 import { Label } from "@/presentation/components/ui/label";
+import { redirectToExternalUrl } from "@/infrastructure/utils/externalNavigation";
+import { useOnlineStatus } from "@/application/hooks";
 
 export const AnnouncementPopup = () => {
   const [template, setTemplate] = useState<AnnouncementTemplate | null>(null);
   const [dontShowAgainToday, setDontShowAgainToday] = useState(false);
   const [open, setOpen] = useState(false);
+  const { isOnline } = useOnlineStatus();
 
   useEffect(() => {
+    if (!isOnline) {
+      setOpen(false);
+      return;
+    }
+
     if (!shouldShowAnnouncement()) return;
 
     const nextTemplate = getActiveAnnouncementTemplate();
@@ -32,7 +40,7 @@ export const AnnouncementPopup = () => {
 
     setTemplate(nextTemplate);
     setOpen(true);
-  }, []);
+  }, [isOnline]);
 
   const handleClose = () => {
     if (
@@ -46,7 +54,7 @@ export const AnnouncementPopup = () => {
   };
 
   const handleRedirect = () => {
-    window.location.href = "https://os.workfromcoffee.com";
+    redirectToExternalUrl("https://os.workfromcoffee.com");
   };
 
   const handleOpenChange = (nextOpen: boolean) => {

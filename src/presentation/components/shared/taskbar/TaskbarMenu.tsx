@@ -17,6 +17,7 @@ import { openWindowAtom } from "@/application/atoms/windowAtoms";
 import { ResetDialog } from "./ResetDialog";
 import { useOpenChangelog } from "./ChangelogWindow";
 import { Lock } from "lucide-react";
+import { openExternalUrl } from "@/infrastructure/utils/externalNavigation";
 
 export const TaskbarMenu = () => {
   const openWindow = useAtom(openWindowAtom)[1];
@@ -30,7 +31,7 @@ export const TaskbarMenu = () => {
 
     if (appConfig.externalUrl) {
       playSound("/sounds/click.mp3");
-      window.open(appConfig.externalUrl, "_blank");
+      openExternalUrl(appConfig.externalUrl);
       return;
     }
 
@@ -50,7 +51,7 @@ export const TaskbarMenu = () => {
   // Function to open URL in the current window
   const openUrl = (url: string) => {
     playSound("/sounds/click.mp3");
-    window.open(url, "_blank");
+    openExternalUrl(url);
   };
 
   // Function to open reset dialog

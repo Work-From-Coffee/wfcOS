@@ -1,67 +1,19 @@
 import { Size } from "@/application/types/window";
 import React from "react";
-import dynamic from "next/dynamic";
-
-const Timer = dynamic(
-  () => import("@/app/(timer)/Timer").then((mod) => mod.Timer),
-  { ssr: false },
-);
-const BackgroundChanger = dynamic(
-  () =>
-    import("@/app/(settings)/(background)/background").then(
-      (mod) => mod.BackgroundChanger,
-    ),
-  { ssr: false },
-);
-const SoundChanger = dynamic(
-  () =>
-    import("@/app/(settings)/(sound)/sound").then((mod) => mod.SoundChanger),
-  { ssr: false },
-);
-const MusicPlayer = dynamic(
-  () =>
-    import("@/app/(music-player)/MusicPlayer").then((mod) => mod.MusicPlayer),
-  { ssr: false },
-);
-const TodoList = dynamic(() => import("@/app/(to-do-list)/todoList"), {
-  ssr: false,
-});
-const AmbiencePlayer = dynamic(
-  () =>
-    import("@/app/(ambience)/ambiencePlayer").then((mod) => mod.AmbiencePlayer),
-  { ssr: false },
-);
-const Notepad = dynamic(() => import("@/app/(notepad)/Notepad"), {
-  ssr: false,
-});
-const ChangelogWindow = dynamic(
-  () =>
-    import("@/presentation/components/shared/taskbar/ChangelogWindow").then(
-      (mod) => mod.ChangelogWindow,
-    ),
-  { ssr: false },
-);
-const Bookmark = dynamic(() => import("@/app/(bookmark)/Bookmark"), {
-  ssr: false,
-});
-const SettingsPanel = dynamic(
-  () =>
-    import("@/app/(settings)/SettingsPanel").then((mod) => mod.SettingsPanel),
-  { ssr: false },
-);
-const SessionLogApp = dynamic(
-  () => import("@/app/(session-log)/SessionLogApp"),
-  {
-    ssr: false,
-  },
-);
-const StorageMigrationApp = dynamic(
-  () =>
-    import("@/app/(migration)/StorageMigrationApp").then(
-      (mod) => mod.StorageMigrationApp,
-    ),
-  { ssr: false },
-);
+import { Timer } from "@/app/(timer)/Timer";
+import { BackgroundChanger } from "@/app/(settings)/(background)/background";
+import { SoundChanger } from "@/app/(settings)/(sound)/sound";
+import { MusicPlayer } from "@/app/(music-player)/MusicPlayer";
+import TodoList from "@/app/(to-do-list)/todoList";
+import { AmbiencePlayer } from "@/app/(ambience)/ambiencePlayer";
+import Notepad from "@/app/(notepad)/Notepad";
+import {
+  ChangelogWindow,
+} from "@/presentation/components/shared/taskbar/ChangelogWindow";
+import Bookmark from "@/app/(bookmark)/Bookmark";
+import { SettingsPanel } from "@/app/(settings)/SettingsPanel";
+import SessionLogApp from "@/app/(session-log)/SessionLogApp";
+import { StorageMigrationApp } from "@/app/(migration)/StorageMigrationApp";
 
 interface AppRegistryEntry {
   name: string; // The display name of the app
@@ -71,6 +23,8 @@ interface AppRegistryEntry {
   component: React.ComponentType<any>;
   externalUrl?: string;
   hidden?: boolean; // Flag to hide app from desktop icons
+  onlineOnly?: boolean;
+  offlineMessage?: string;
 }
 
 // Settings module specific entries
@@ -128,6 +82,9 @@ export const appRegistry: Record<string, AppRegistryEntry> = {
     defaultSize: { width: 400, height: 600 },
     minSize: { width: 320, height: 400 },
     component: MusicPlayer,
+    onlineOnly: true,
+    offlineMessage:
+      "Music streaming needs an internet connection. Your playlist stays saved locally.",
   },
   notepad: {
     name: "Notepad",
@@ -156,6 +113,9 @@ export const appRegistry: Record<string, AppRegistryEntry> = {
     defaultSize: { width: 460, height: 360 },
     minSize: { width: 360, height: 360 },
     component: StorageMigrationApp,
+    onlineOnly: true,
+    offlineMessage:
+      "Data migration needs internet because it sends your local data to the new website.",
   },
   changelog: {
     name: "Changelog",

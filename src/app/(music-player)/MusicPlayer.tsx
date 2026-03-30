@@ -7,6 +7,7 @@ import PlayerControls from "./components/PlayerControls";
 import PlaylistManager from "./components/PlaylistManager";
 import VolumeControl from "./components/VolumeControl";
 import ProgressBar from "./components/ProgressBar";
+import { useOnlineStatus } from "@/application/hooks";
 
 const VideoDisplay = dynamic(() => import("./components/VideoDisplay"), {
   ssr: false,
@@ -14,6 +15,7 @@ const VideoDisplay = dynamic(() => import("./components/VideoDisplay"), {
 
 export const MusicPlayer = () => {
   const [playerState] = useAtom(musicPlayerAtom);
+  const { isOnline } = useOnlineStatus();
 
   return (
     <div className="flex flex-col h-full bg-card text-card-foreground">
@@ -38,6 +40,13 @@ export const MusicPlayer = () => {
               </span>
             )}
           </h2>
+
+          {!isOnline ? (
+            <p className="mb-3 rounded-md border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-sm text-amber-700">
+              Music streaming is online-only right now. Your playlist stays
+              saved locally, but playback needs internet.
+            </p>
+          ) : null}
 
           {/* Progress Bar */}
           <ProgressBar />

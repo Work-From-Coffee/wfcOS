@@ -1,6 +1,8 @@
 import React, { useRef } from "react";
-import Image from "next/image";
-import { BackgroundSettings } from "@/application/atoms/backgroundAtom";
+import {
+  BackgroundSettings,
+  isCustomBackgroundUrl,
+} from "@/application/atoms/backgroundAtom";
 
 interface BackgroundUploaderProps {
   uploadedImage: string | null;
@@ -46,8 +48,9 @@ export const BackgroundUploader = ({
 
   return (
     <div
-      className={`cursor-pointer border-2 transition-colors relative ${
-        uploadedImage && tempSettings.url === uploadedImage
+        className={`cursor-pointer border-2 transition-colors relative ${
+        uploadedImage &&
+        (tempSettings.url === uploadedImage || isCustomBackgroundUrl(tempSettings.url))
           ? "border-primary"
           : "border-muted hover:border-primary/50 bg-muted"
       } rounded-md overflow-hidden flex items-center justify-center h-[60px] sm:h-[70px]`}
@@ -61,12 +64,10 @@ export const BackgroundUploader = ({
       }}
     >
       {uploadedImage ? (
-        <Image
+        <img
           src={uploadedImage}
           alt="Uploaded Background"
-          fill
-          sizes="(max-width: 640px) 100vw, 300px"
-          className="object-cover opacity-80 group-hover:opacity-100 transition-opacity"
+          className="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity"
         />
       ) : (
         <div className="text-center text-xs sm:text-sm font-medium">

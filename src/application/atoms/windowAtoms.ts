@@ -5,6 +5,11 @@ import {
   saveFeatureState,
 } from "../../infrastructure/utils/storage";
 import { Position, Size } from "@/application/types/window"; // Assuming types are defined here
+import {
+  handleTimerClose,
+  handleTimerMinimize,
+  handleTimerOpen,
+} from "@/application/atoms/timerAtom";
 
 const FEATURE_KEY = "windows";
 
@@ -163,6 +168,10 @@ export const openWindowAtom = atom(
       }));
     }
 
+    if (windowConfig.appId === "timer") {
+      handleTimerOpen(set, windowIdToUpdate);
+    }
+
     // Bring the window to front (redundant if new, necessary if existing)
     // We already set the zIndex above.
   }
@@ -186,6 +195,10 @@ export const closeWindowAtom = atom(null, (get, set, windowId: string) => {
     }
     return newState;
   });
+
+  if (windowToClose.appId === "timer") {
+    handleTimerClose(set, windowId);
+  }
 });
 
 // Atom to explicitly set the minimized state of a window
@@ -226,6 +239,11 @@ export const setWindowMinimizedStateAtom = atom(
         [windowId]: updatedWindowState,
       };
     });
+
+    const targetWindow = get(windowRegistryAtom)[windowId];
+    if (targetWindow?.appId === "timer") {
+      handleTimerMinimize(set, windowId, isMinimized);
+    }
   }
 );
 

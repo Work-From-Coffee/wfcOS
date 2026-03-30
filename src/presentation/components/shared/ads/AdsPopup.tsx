@@ -6,6 +6,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { ArrowUpRight } from "lucide-react";
 // import { Button } from "@/presentation/components/ui/button";
 import Image from "next/image";
+import { openExternalUrl } from "@/infrastructure/utils/externalNavigation";
 
 // Easily configurable time settings (all in milliseconds)
 const adSettings = {
@@ -89,7 +90,7 @@ export const AdsPopup = () => {
   // Handle clicking on the ad
   const handleAdClick = useCallback(() => {
     if (adData[currentAdIndex]?.url) {
-      window.open(adData[currentAdIndex].url, "_blank");
+      openExternalUrl(adData[currentAdIndex].url);
     }
   }, [currentAdIndex]);
 

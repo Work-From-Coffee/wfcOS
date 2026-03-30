@@ -12,6 +12,7 @@ import { CSS } from "@dnd-kit/utilities";
 import { GripVertical, MoreVertical } from "lucide-react";
 import { BookmarkOptions } from "./BookmarkOptions";
 import { playSound } from "@/infrastructure/lib/utils";
+import { openExternalUrl } from "@/infrastructure/utils/externalNavigation";
 
 // --- Type for the state holding active options data ---
 interface ActiveOptionsState {
@@ -51,7 +52,10 @@ const SortableBookmarkItem = ({
 
   const handleOpenLink = () => {
     playSound("/sounds/click.mp3");
-    window.open(bookmark.url, "_blank");
+    openExternalUrl(
+      bookmark.url,
+      "Bookmarks are saved offline, but opening the destination still needs internet."
+    );
   };
 
   // --- Updated toggleOptions to call parent callback ---

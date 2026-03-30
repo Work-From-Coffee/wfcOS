@@ -6,6 +6,7 @@ import { appRegistry } from "@/infrastructure/config/appRegistry";
 import { AppIcon } from "./AppIcon";
 import { playSound } from "@/infrastructure/lib/utils";
 import { openWindowAtom } from "@/application/atoms/windowAtoms";
+import { openExternalUrl } from "@/infrastructure/utils/externalNavigation";
 
 export const DesktopIcons = () => {
   const [selectedAppId, setSelectedAppId] = useState<string | null>(null);
@@ -28,7 +29,7 @@ export const DesktopIcons = () => {
 
     if (appConfig.externalUrl) {
       playSound("/sounds/click.mp3");
-      window.open(appConfig.externalUrl, "_blank");
+      openExternalUrl(appConfig.externalUrl);
       setSelectedAppId(appId);
       return;
     }
