@@ -4,29 +4,32 @@ import dynamic from "next/dynamic";
 
 const Timer = dynamic(
   () => import("@/app/(timer)/Timer").then((mod) => mod.Timer),
-  { ssr: false }
+  { ssr: false },
 );
 const BackgroundChanger = dynamic(
   () =>
     import("@/app/(settings)/(background)/background").then(
-      (mod) => mod.BackgroundChanger
+      (mod) => mod.BackgroundChanger,
     ),
-  { ssr: false }
+  { ssr: false },
 );
 const SoundChanger = dynamic(
-  () => import("@/app/(settings)/(sound)/sound").then((mod) => mod.SoundChanger),
-  { ssr: false }
+  () =>
+    import("@/app/(settings)/(sound)/sound").then((mod) => mod.SoundChanger),
+  { ssr: false },
 );
 const MusicPlayer = dynamic(
-  () => import("@/app/(music-player)/MusicPlayer").then((mod) => mod.MusicPlayer),
-  { ssr: false }
+  () =>
+    import("@/app/(music-player)/MusicPlayer").then((mod) => mod.MusicPlayer),
+  { ssr: false },
 );
 const TodoList = dynamic(() => import("@/app/(to-do-list)/todoList"), {
   ssr: false,
 });
 const AmbiencePlayer = dynamic(
-  () => import("@/app/(ambience)/ambiencePlayer").then((mod) => mod.AmbiencePlayer),
-  { ssr: false }
+  () =>
+    import("@/app/(ambience)/ambiencePlayer").then((mod) => mod.AmbiencePlayer),
+  { ssr: false },
 );
 const Notepad = dynamic(() => import("@/app/(notepad)/Notepad"), {
   ssr: false,
@@ -34,20 +37,31 @@ const Notepad = dynamic(() => import("@/app/(notepad)/Notepad"), {
 const ChangelogWindow = dynamic(
   () =>
     import("@/presentation/components/shared/taskbar/ChangelogWindow").then(
-      (mod) => mod.ChangelogWindow
+      (mod) => mod.ChangelogWindow,
     ),
-  { ssr: false }
+  { ssr: false },
 );
 const Bookmark = dynamic(() => import("@/app/(bookmark)/Bookmark"), {
   ssr: false,
 });
 const SettingsPanel = dynamic(
-  () => import("@/app/(settings)/SettingsPanel").then((mod) => mod.SettingsPanel),
-  { ssr: false }
+  () =>
+    import("@/app/(settings)/SettingsPanel").then((mod) => mod.SettingsPanel),
+  { ssr: false },
 );
-const SessionLogApp = dynamic(() => import("@/app/(session-log)/SessionLogApp"), {
-  ssr: false,
-});
+const SessionLogApp = dynamic(
+  () => import("@/app/(session-log)/SessionLogApp"),
+  {
+    ssr: false,
+  },
+);
+const StorageMigrationApp = dynamic(
+  () =>
+    import("@/app/(migration)/StorageMigrationApp").then(
+      (mod) => mod.StorageMigrationApp,
+    ),
+  { ssr: false },
+);
 
 interface AppRegistryEntry {
   name: string; // The display name of the app
@@ -135,6 +149,13 @@ export const appRegistry: Record<string, AppRegistryEntry> = {
     defaultSize: { width: 500, height: 550 },
     minSize: { width: 300, height: 300 },
     component: SettingsPanel,
+  },
+  migrateData: {
+    name: "Migrate Data",
+    src: "/icons/default.png",
+    defaultSize: { width: 460, height: 360 },
+    minSize: { width: 360, height: 360 },
+    component: StorageMigrationApp,
   },
   changelog: {
     name: "Changelog",
