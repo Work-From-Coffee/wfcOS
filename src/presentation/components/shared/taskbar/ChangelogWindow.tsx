@@ -19,6 +19,8 @@ export const ChangelogContent = () => {
         <div>
           <h3 className="text-lg font-semibold">Version 3.1.0</h3>
           <ul className="list-disc pl-5 space-y-1 text-sm">
+            <p className="font-bold underline">Offline Feature</p>
+            <li>wfcOS can use without internet connection</li>
             <p className="font-bold underline">Platform</p>
             <li>Migrated to the new website experience</li>
             <p className="font-bold underline">Find Coffee Shop</p>
