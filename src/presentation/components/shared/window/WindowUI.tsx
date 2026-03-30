@@ -177,7 +177,7 @@ export const WindowUI = memo(
             </span>
             <div className="flex items-center gap-1">
               <button
-                className="cursor-pointer bg-yellow-500 text-white rounded-sm w-5 h-5 flex justify-center items-center font-bold leading-[1px]"
+                className="cursor-pointer bg-yellow-500 text-white rounded-sm w-5 h-5 flex justify-center items-center font-bold leading-px"
                 onClick={(e) => {
                   e.stopPropagation();
                   onFocus();
@@ -189,7 +189,7 @@ export const WindowUI = memo(
                 -
               </button>
               <button
-                className="cursor-pointer bg-destructive text-white rounded-sm w-5 h-5 flex justify-center items-center font-bold leading-[1px]"
+                className="cursor-pointer bg-destructive text-white rounded-sm w-5 h-5 flex justify-center items-center font-bold leading-px"
                 onClick={(e) => {
                   e.stopPropagation();
                   onFocus();
@@ -204,7 +204,7 @@ export const WindowUI = memo(
           </div>
 
           {/* Memoized Content Area */}
-          <div className="p-4 flex-grow overflow-auto bg-card">{children}</div>
+          <div className="p-4 grow overflow-auto bg-card">{children}</div>
 
           {/* Resize Handles */}
           {!isMobile &&

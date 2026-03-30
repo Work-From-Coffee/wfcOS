@@ -110,23 +110,23 @@ const SortableSongItem = ({
           <div
             {...attributes}
             {...listeners}
-            className="cursor-grab active:cursor-grabbing text-muted-foreground hover:text-foreground flex-shrink-0"
+            className="cursor-grab active:cursor-grabbing text-muted-foreground hover:text-foreground shrink-0"
           >
             <GripVertical className="w-4 h-4" />
           </div>
 
           {index === isCurrentSong ? (
             isPlaying ? (
-              <span className="text-primary flex-shrink-0">
+              <span className="text-primary shrink-0">
                 <Play className="w-4 h-4" />
               </span>
             ) : (
-              <span className="text-muted-foreground flex-shrink-0">
+              <span className="text-muted-foreground shrink-0">
                 <Pause className="w-4 h-4" />
               </span>
             )
           ) : (
-            <span className="w-4 h-4 flex-shrink-0"></span>
+            <span className="w-4 h-4 shrink-0"></span>
           )}
 
           {editingIndex === index ? (
@@ -173,14 +173,14 @@ const SortableSongItem = ({
           <div className="flex items-center gap-1">
             <button
               onClick={(e) => onStartEditing(e, index)}
-              className="text-muted-foreground hover:text-primary p-1 rounded-full hover:bg-muted flex-shrink-0"
+              className="text-muted-foreground hover:text-primary p-1 rounded-full hover:bg-muted shrink-0"
               aria-label={`Edit ${song.title}`}
             >
               <Pencil className="w-4 h-4" />
             </button>
             <button
               onClick={(e) => onRemoveSong(e, index)}
-              className="text-muted-foreground hover:text-destructive p-1 rounded-full hover:bg-muted flex-shrink-0"
+              className="text-muted-foreground hover:text-destructive p-1 rounded-full hover:bg-muted shrink-0"
               aria-label={`Remove ${song.title}`}
             >
               <Trash2 className="w-4 h-4" />
@@ -358,7 +358,7 @@ const PlaylistManager = () => {
             value={newSongUrl}
             onChange={(e) => setNewSongUrl(e.target.value)}
             placeholder="Enter YouTube URL"
-            className="flex-grow min-w-0 p-2 rounded-l-md bg-input border border-border focus:outline-none focus:ring-1 focus:ring-ring text-foreground"
+            className="grow min-w-0 p-2 rounded-l-md bg-input border border-border focus:outline-none focus:ring-1 focus:ring-ring text-foreground"
             required
           />
           <button

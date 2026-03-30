@@ -320,7 +320,7 @@ const VideoDisplay = ({ isVisible }: VideoDisplayProps) => {
             <button
               type="button"
               onMouseDown={handleResizeStart}
-              className="absolute inset-x-0 bottom-0 z-30 flex h-5 cursor-ns-resize items-end justify-center rounded-b-md bg-gradient-to-t from-black/35 to-transparent pb-1 text-white/90"
+              className="absolute inset-x-0 bottom-0 z-30 flex h-5 cursor-ns-resize items-end justify-center rounded-b-md bg-linear-to-t from-black/35 to-transparent pb-1 text-white/90"
               aria-label="Resize video height"
               title="Drag to resize video height"
             >
