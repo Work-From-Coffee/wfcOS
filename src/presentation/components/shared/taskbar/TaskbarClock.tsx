@@ -22,20 +22,6 @@ export const TaskbarClock = () => {
     <div className="taskbar-clock ml-auto flex items-center gap-3">
       <div className="flex items-center space-x-1">
         <SoundToggle />
-        <a
-          href="https://ko-fi.com/workfromcoffee"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Button
-            variant="ghost"
-            size="icon"
-            className="size-7"
-            title="Buy me a coffee"
-          >
-            <Coffee size={16} />
-          </Button>
-        </a>
       </div>
       <div className="taskbar-clock ml-auto mr-2 text-sm font-medium whitespace-nowrap uppercase">
         {time

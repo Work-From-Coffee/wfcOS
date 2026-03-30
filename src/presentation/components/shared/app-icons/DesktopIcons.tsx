@@ -26,11 +26,16 @@ export const DesktopIcons = () => {
     const appConfig = appRegistry[appId];
     if (!appConfig) return;
 
+    if (appConfig.externalUrl) {
+      playSound("/sounds/click.mp3");
+      window.open(appConfig.externalUrl, "_blank");
+      setSelectedAppId(appId);
+      return;
+    }
+
     const windowInstanceId = `${appId}-instance`;
 
     playSound("/sounds/open.mp3");
-
-    // Call openWindow atom - it handles existing/new/minimized logic internally
     openWindow({
       id: windowInstanceId,
       appId: appId,

@@ -55,6 +55,7 @@ interface AppRegistryEntry {
   defaultSize: Size;
   minSize?: Size;
   component: React.ComponentType<any>;
+  externalUrl?: string;
   hidden?: boolean; // Flag to hide app from desktop icons
 }
 
@@ -150,6 +151,22 @@ export const appRegistry: Record<string, AppRegistryEntry> = {
     minSize: { width: 450, height: 300 },
     component: SessionLogApp,
     hidden: true,
+  },
+  findCoffeeShop: {
+    name: "Find Coffee Shop",
+    src: "/icons/cafe.png",
+    defaultSize: { width: 400, height: 600 },
+    minSize: { width: 320, height: 400 },
+    component: SessionLogApp,
+    externalUrl: "https://beta.workfromcoffee.com/",
+  },
+  giveTips: {
+    name: "Buy Us a Coffee",
+    src: "/icons/coffee.png",
+    defaultSize: { width: 400, height: 600 },
+    minSize: { width: 320, height: 400 },
+    component: SessionLogApp,
+    externalUrl: "https://workfromcoffee.gumroad.com/coffee",
   },
 };
 

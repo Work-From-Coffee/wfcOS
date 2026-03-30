@@ -28,6 +28,12 @@ export const TaskbarMenu = () => {
     const appConfig = appRegistry[appId];
     if (!appConfig) return;
 
+    if (appConfig.externalUrl) {
+      playSound("/sounds/click.mp3");
+      window.open(appConfig.externalUrl, "_blank");
+      return;
+    }
+
     playSound("/sounds/open.mp3");
 
     const windowInstanceId = `${appId}-instance`;
