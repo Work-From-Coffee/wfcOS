@@ -152,7 +152,7 @@ export const appRegistry: Record<string, AppRegistryEntry> = {
   },
   migrateData: {
     name: "Migrate Data",
-    src: "/icons/default.png",
+    src: "/icons/news.png",
     defaultSize: { width: 460, height: 360 },
     minSize: { width: 360, height: 360 },
     component: StorageMigrationApp,
@@ -183,7 +183,7 @@ export const appRegistry: Record<string, AppRegistryEntry> = {
   },
   giveTips: {
     name: "Buy Us a Coffee",
-    src: "/icons/coffee.png",
+    src: "/icons/tips.png",
     defaultSize: { width: 400, height: 600 },
     minSize: { width: 320, height: 400 },
     component: SessionLogApp,

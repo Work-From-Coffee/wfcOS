@@ -72,10 +72,10 @@ export const TaskbarMenu = () => {
           <Image
             src="/icons/coffee.png"
             alt="coffee"
-            width={32}
-            height={34}
+            width={24}
+            height={24}
             loading="eager"
-            style={{ width: "auto", height: "20px" }}
+            style={{ width: "auto", height: "auto" }}
           />
         </div>
       </MenubarMenu>
