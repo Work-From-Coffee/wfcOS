@@ -76,7 +76,7 @@ export const TaskbarMenu = () => {
             width={24}
             height={24}
             loading="eager"
-            style={{ width: "auto", height: "auto" }}
+            style={{ width: "24px", height: "24px" }}
           />
         </div>
       </MenubarMenu>

@@ -143,11 +143,11 @@ export const AdsPopup = () => {
         <div className="p-3 flex items-start gap-3">
           {/* Thumbnail - either emoji or image */}
           {isEmoji ? (
-            <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center text-2xl">
+            <div className="shrink-0 w-8 h-8 flex items-center justify-center text-2xl">
               {currentAd.thumbnail.content}
             </div>
           ) : (
-            <div className="relative flex-shrink-0 w-8 h-8 rounded-full overflow-hidden">
+            <div className="relative shrink-0 w-8 h-8 rounded-full overflow-hidden">
               <Image
                 src={currentAd.thumbnail?.content || "/placeholder.svg"}
                 alt=""
