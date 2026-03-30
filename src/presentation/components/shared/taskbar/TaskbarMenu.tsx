@@ -123,7 +123,7 @@ export const TaskbarMenu = () => {
                   />
                   {app.name}
                 </MenubarItem>
-              )
+              ),
           )}
           <MenubarSeparator />
           <MenubarItem
@@ -141,7 +141,7 @@ export const TaskbarMenu = () => {
         </MenubarTrigger>
         <MenubarContent>
           <MenubarItem disabled>
-            WFC OS<MenubarShortcut>v 3.0.0</MenubarShortcut>
+            WFC OS<MenubarShortcut>v 3.1.0</MenubarShortcut>
           </MenubarItem>
           <MenubarItem inset onSelect={openChangelogWindow}>
             Changelog<MenubarShortcut>history</MenubarShortcut>

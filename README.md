@@ -9,7 +9,7 @@
     <img src="https://img.shields.io/badge/Next.js-16.2.1-000000?logo=next.js&logoColor=white" alt="Next.js">
   </a>
   <a href="https://reactjs.org/">
-    <img src="https://img.shields.io/badge/React-19.2.4-61DAFB?logo=react&logoColor=white" alt="React">
+    <img src="https://img.shields.io/badge/React-19.1.0-61DAFB?logo=react&logoColor=white" alt="React">
   </a>
   <a href="https://nodejs.org/">
     <img src="https://img.shields.io/badge/Node.js-22.x-43853D?logo=node.js&logoColor=white" alt="Node.js Version">
@@ -18,7 +18,7 @@
     <img src="https://img.shields.io/badge/TypeScript-5.9.3-3178C6?logo=typescript&logoColor=white" alt="TypeScript">
   </a>
   <a href="https://tailwindcss.com/">
-    <img src="https://img.shields.io/badge/Tailwind_CSS-4.2.2-38B2AC?logo=tailwind-css&logoColor=white" alt="Tailwind CSS">
+    <img src="https://img.shields.io/badge/Tailwind_CSS-4.1.4-38B2AC?logo=tailwind-css&logoColor=white" alt="Tailwind CSS">
   </a>
   <a href="https://shadcn.com/">
     <img src="https://img.shields.io/badge/Shadcn-0.1.14-000000?logo=shadcn&logoColor=white" alt="Shadcn">
@@ -50,20 +50,25 @@ WFCOS (Work From Cafe OS) provides a single, organized interface that helps user
 
 Built with Next.js 16, React 19, and Tailwind CSS v4, WFCOS offers a customizable and performant workspace. Leveraging Radix UI and shadcn/ui, it provides a familiar, desktop-like environment tailored to your needs.
 
+The current stack uses pnpm for dependency management and Biome for linting and formatting, keeping the local workflow fast and consistent across contributors.
+
 Ideal for remote workers, developers, and anyone seeking a consistent and personalized command center for their online activities.
 
 > **📚 Documentation**: For detailed information on how this app works, visit our [DeepWiki documentation](https://deepwiki.com/ekmigasari/wfcOS/).
 
 ## ✨ Features
 
-### Version 3.0.0 - Latest Release
+### Version 3.1.0 - Latest Release
 
 ### Platform
 
-- Removed the blog and content-only SEO routes
-- Switched the project from Bun to pnpm
-- Replaced ESLint with Biome
-- Updated the app to Next.js 16
+- Migrated to the new website experience
+- Standardized the toolchain around pnpm and Biome
+- Updated the app to a leaner Next.js 16 setup
+
+### ☕ Find Coffee Shop
+
+- New website to discover work-friendly coffee shops
 
 ### ⏱️ Timer
 
@@ -84,11 +89,11 @@ Ideal for remote workers, developers, and anyone seeking a consistent and person
 
 - **Framework:** [Next.js](https://nextjs.org/) v16.2.1 with App Router
 
-- **UI Library:** [React](https://react.dev/) v19.2.4
+- **UI Library:** [React](https://react.dev/) v19.1.0
 
-- **Styling:** [Tailwind CSS](https://tailwindcss.com/) v4.2.2
+- **Styling:** [Tailwind CSS](https://tailwindcss.com/) v4.1.4
 
-- **State Management:** [Jotai](https://jotai.org/) v2.19.0
+- **State Management:** [Jotai](https://jotai.org/) v2.12.3
 
 - **Component Library:** [Shadcn/UI](https://ui.shadcn.com/) with [Radix UI](https://www.radix-ui.com/)
 
@@ -96,7 +101,7 @@ Ideal for remote workers, developers, and anyone seeking a consistent and person
 
 - **Drag and Drop:** [dnd-kit](https://dndkit.com/) v6.3.1
 
-- **Charts:** [Recharts](https://recharts.org/) v2.15.4
+- **Charts:** [Recharts](https://recharts.org/) v2.15.3
 
 - **Linting:** [Biome](https://biomejs.dev/) v1.9.4
 
@@ -105,6 +110,8 @@ Ideal for remote workers, developers, and anyone seeking a consistent and person
 - **Language:** [TypeScript](https://www.typescriptlang.org/) v5.9.3
 
 - **Package Manager:** [pnpm](https://pnpm.io/)
+
+- **Code Quality:** Biome linting and formatting with Husky git hooks
 
 ## 🚀 Getting Started
 
@@ -148,6 +155,12 @@ pnpm start
 
 # Lint code
 pnpm lint
+
+# Run lint + formatting checks
+pnpm check
+
+# Format code
+pnpm format
 ```
 
 ### Docker Deployment
