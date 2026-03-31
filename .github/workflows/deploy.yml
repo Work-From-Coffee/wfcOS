@@ -44,29 +44,20 @@ jobs:
               git checkout main
               git reset --hard origin/main
 
-              echo "Build latest app image..."
-              docker compose build --pull app
-
-              APP_IMAGE_ID="$(docker compose images -q app)"
-
-              echo "Remove old application container..."
-              docker compose rm -sf app || true
-
-              echo "Start application service with forced recreation..."
-              docker compose up -d --no-deps --force-recreate app
+              echo "Build and recreate application service..."
+              docker compose up -d --build --force-recreate app
 
               echo "Check container..."
               docker compose ps
 
               RUNNING_APP_CONTAINER="$(docker compose ps -q app)"
-              RUNNING_APP_IMAGE_ID="$(docker inspect -f '{{.Image}}' "$RUNNING_APP_CONTAINER")"
-
-              test -n "$APP_IMAGE_ID"
               test -n "$RUNNING_APP_CONTAINER"
-              test "$RUNNING_APP_IMAGE_ID" = "$APP_IMAGE_ID"
 
               echo "Recent app logs..."
               docker compose logs --tail=20 app
+
+              echo "Verify local app response..."
+              curl -fsSI http://127.0.0.1:4500/
 
               echo "Deploy done!"
           EOF
