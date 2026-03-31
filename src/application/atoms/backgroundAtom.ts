@@ -4,6 +4,8 @@ import { atomWithStorage, createJSONStorage } from "jotai/utils";
 // Default background path
 const DEFAULT_BACKGROUND = "/background/bg-2.webp";
 const DEFAULT_FIT = "fill";
+export const CUSTOM_BACKGROUND_STORAGE_KEY = "uploaded-desktop-background";
+export const CUSTOM_BACKGROUND_URL = `idb://${CUSTOM_BACKGROUND_STORAGE_KEY}`;
 const DEFAULT_SETTINGS: BackgroundSettings = {
   url: DEFAULT_BACKGROUND,
   fit: DEFAULT_FIT,
@@ -16,6 +18,10 @@ export interface BackgroundSettings {
   fit: BackgroundFit;
 }
 
+export const isCustomBackgroundUrl = (
+  url: string | null | undefined
+): url is string => url === CUSTOM_BACKGROUND_URL;
+
 // Create a storage utility that uses localStorage and handles JSON parsing/stringifying
 // Also handles cases where localStorage is not available (SSR)
 const storage = createJSONStorage<BackgroundSettings>(() => {
@@ -24,11 +30,8 @@ const storage = createJSONStorage<BackgroundSettings>(() => {
   }
   // Return a dummy storage object for SSR
   return {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     getItem: (_key) => null, // Always return null on server
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     setItem: (_key, _value) => {},
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     removeItem: (_key) => {},
   };
 });

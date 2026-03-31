@@ -1,39 +1,38 @@
-#Base Image
-FROM oven/bun
+FROM node:22-alpine AS base
 
-# Set the working directory inside the container
 WORKDIR /app
 
-# Copy package.json and package-lock.json to the working directory
+ENV PNPM_HOME="/pnpm"
+ENV PATH="$PNPM_HOME:$PATH"
+ENV HUSKY=0
+
+RUN apk add --no-cache libc6-compat
+RUN corepack enable
+
+FROM base AS deps
+
+COPY package.json pnpm-lock.yaml ./
+RUN pnpm install --frozen-lockfile --ignore-scripts
+
+FROM base AS builder
+
+COPY --from=deps /app/node_modules ./node_modules
 COPY . .
+RUN pnpm build
 
-# Install dependencies
-RUN bun install 
+FROM base AS runner
 
-# Run the application
-CMD ["bun", "dev"]
+ENV NODE_ENV=production
+ENV HOSTNAME=0.0.0.0
+ENV PORT=3000
 
-# Expose port 3000
+COPY package.json pnpm-lock.yaml ./
+RUN pnpm install --prod --frozen-lockfile --ignore-scripts
+
+COPY --from=builder /app/.next ./.next
+COPY --from=builder /app/public ./public
+COPY --from=builder /app/next.config.ts ./next.config.ts
+
 EXPOSE 3000
 
-# If using prisma
-
-# #Base Image
-# FROM oven/bun
-
-# # Set the working directory inside the container
-# WORKDIR /api
-
-# # Copy working directory
-# COPY ./prisma ./
-# COPY . .
-
-# # Install dependencies
-# RUN bun install --ignore-scripts
-# RUN bunx prisma generate
-
-# # Run the application
-# CMD ["bun", "dev"]
-
-# # Expose port 3000
-# EXPOSE 3001
+CMD ["pnpm", "start"]

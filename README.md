@@ -5,17 +5,17 @@
 <h1 align="center">Work from Coffee OS</h1>
 
 <p align="center">
- <a href="https://nextjs.org/">
-    <img src="https://img.shields.io/badge/Next.js-15.3.1-000000?logo=next.js&logoColor=white" alt="Next.js">
+  <a href="https://nextjs.org/">
+    <img src="https://img.shields.io/badge/Next.js-16.2.1-000000?logo=next.js&logoColor=white" alt="Next.js">
   </a>
   <a href="https://reactjs.org/">
     <img src="https://img.shields.io/badge/React-19.1.0-61DAFB?logo=react&logoColor=white" alt="React">
   </a>
   <a href="https://nodejs.org/">
-    <img src="https://img.shields.io/badge/Node.js-18.x+-43853D?logo=node.js&logoColor=white" alt="Node.js Version">
+    <img src="https://img.shields.io/badge/Node.js-22.x-43853D?logo=node.js&logoColor=white" alt="Node.js Version">
   </a>
   <a href="https://www.typescriptlang.org/">
-    <img src="https://img.shields.io/badge/TypeScript-5.8.3-3178C6?logo=typescript&logoColor=white" alt="TypeScript">
+    <img src="https://img.shields.io/badge/TypeScript-5.9.3-3178C6?logo=typescript&logoColor=white" alt="TypeScript">
   </a>
   <a href="https://tailwindcss.com/">
     <img src="https://img.shields.io/badge/Tailwind_CSS-4.1.4-38B2AC?logo=tailwind-css&logoColor=white" alt="Tailwind CSS">
@@ -23,8 +23,8 @@
   <a href="https://shadcn.com/">
     <img src="https://img.shields.io/badge/Shadcn-0.1.14-000000?logo=shadcn&logoColor=white" alt="Shadcn">
   </a>
-  <a href="https://bun.sh/">
-    <img src="https://img.shields.io/badge/Bun-1.0.0-000000?logo=bun&logoColor=white" alt="Bun">
+  <a href="https://pnpm.io/">
+    <img src="https://img.shields.io/badge/pnpm-10.26.2-F69220?logo=pnpm&logoColor=white" alt="pnpm">
   </a>
   <a href="https://deepwiki.com/ekmigasari/wfcOS"><img src="https://deepwiki.com/badge.svg" alt="Ask DeepWiki"></a>
 </p>
@@ -48,7 +48,9 @@
 
 WFCOS (Work From Cafe OS) provides a single, organized interface that helps users reduce clutter, streamline tasks, and access essential tools and applications efficiently from any browser.
 
-Built with a cutting-edge stack including Next.js 15, React 19, and Tailwind CSS v4, WFCOS offers a customizable and performant workspace. Leveraging Radix UI and shadcn/ui, it provides a familiar, desktop-like environment tailored to your needs.
+Built with Next.js 16, React 19, and Tailwind CSS v4, WFCOS offers a customizable and performant workspace. Leveraging Radix UI and shadcn/ui, it provides a familiar, desktop-like environment tailored to your needs.
+
+The current stack uses pnpm for dependency management and Biome for linting and formatting, keeping the local workflow fast and consistent across contributors.
 
 Ideal for remote workers, developers, and anyone seeking a consistent and personalized command center for their online activities.
 
@@ -56,11 +58,17 @@ Ideal for remote workers, developers, and anyone seeking a consistent and person
 
 ## ✨ Features
 
-### Version 2.3.1 - Latest Release
+### Version 3.1.0 - Latest Release
 
-### 💼 Blog
+### Platform
 
-- Added blogs section and blog pages
+- Migrated to the new website experience
+- Standardized the toolchain around pnpm and Biome
+- Updated the app to a leaner Next.js 16 setup
+
+### ☕ Find Coffee Shop
+
+- New website to discover work-friendly coffee shops
 
 ### ⏱️ Timer
 
@@ -79,7 +87,7 @@ Ideal for remote workers, developers, and anyone seeking a consistent and person
 
 ## 🛠️ Tech Stack
 
-- **Framework:** [Next.js](https://nextjs.org/) v15.3.1 with App Router
+- **Framework:** [Next.js](https://nextjs.org/) v16.2.1 with App Router
 
 - **UI Library:** [React](https://react.dev/) v19.1.0
 
@@ -95,20 +103,22 @@ Ideal for remote workers, developers, and anyone seeking a consistent and person
 
 - **Charts:** [Recharts](https://recharts.org/) v2.15.3
 
-- **Linting:** [ESLint](https://eslint.org/) v9.25.1
+- **Linting:** [Biome](https://biomejs.dev/) v1.9.4
 
 - **Git Hooks:** [Husky](https://typicode.github.io/husky/) v9.1.7
 
-- **Language:** [TypeScript](https://www.typescriptlang.org/) v5.8.3
+- **Language:** [TypeScript](https://www.typescriptlang.org/) v5.9.3
 
-- **Package Manager:** [Bun](https://bun.sh/)
+- **Package Manager:** [pnpm](https://pnpm.io/)
+
+- **Code Quality:** Biome linting and formatting with Husky git hooks
 
 ## 🚀 Getting Started
 
 ### Prerequisites
 
-- [Node.js](https://nodejs.org/) >= 18.x
-- [Bun](https://bun.sh/) >= 1.0.0
+- [Node.js](https://nodejs.org/) >= 22.x
+- [pnpm](https://pnpm.io/) >= 10.x
 - [Docker](https://www.docker.com/) (optional, for containerized setup)
 
 ### Installation
@@ -126,25 +136,31 @@ Ideal for remote workers, developers, and anyone seeking a consistent and person
    cp env.template .env.local
    ```
 
-3. Install dependencies with Bun:
+3. Install dependencies with pnpm:
    ```bash
-   bun install
+   pnpm install
    ```
 
 ### Development Commands
 
 ```bash
 # Start development server
-bun dev
+pnpm dev
 
 # Build for production
-bun build
+pnpm build
 
 # Start production server
-bun start
+pnpm start
 
 # Lint code
-bun lint
+pnpm lint
+
+# Run lint + formatting checks
+pnpm check
+
+# Format code
+pnpm format
 ```
 
 ### Docker Deployment
@@ -298,6 +314,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - [Tailwind CSS](https://tailwindcss.com/) - For utility-first CSS
 - [Shadcn](https://ui.shadcn.com/) - For UI components
 - [Radix UI](https://www.radix-ui.com/) - For accessible UI components
-- [Bun](https://bun.sh/) - For fast JavaScript runtime and package management
+- [pnpm](https://pnpm.io/) - For package management
 - [Jotai](https://jotai.org/) - For state management
 - [dnd-kit](https://dndkit.com/) - For drag-and-drop functionality

@@ -1,11 +1,13 @@
 ---
-description: 
-globs: 
+description:
+globs:
 alwaysApply: true
 ---
+
 # Development Workflow
 
 ## Environment
+
 - Framework: Next.js v.15 with App Router
 - UI: Tailwind CSS v4
 - Component Library: Shadcn
@@ -16,19 +18,22 @@ alwaysApply: true
 - React: v.19
 
 ## Package Management
-- Install packages: `bun add [package-name]`
-- Install dev dependencies: `bun add -D [package-name]`
-- Update packages: `bun update [package-name]`
-- Remove packages: `bun remove [package-name]`
-- Add Shadcn components: `bunx shadcn@latest add [component-name]`
+
+- Install packages: `pnpm add [package-name]`
+- Install dev dependencies: `pnpm add -D [package-name]`
+- Update packages: `pnpm update [package-name]`
+- Remove packages: `pnpm remove [package-name]`
+- Add Shadcn components: `pnpm dlx shadcn@latest add [component-name]`
 
 ## Scripts
-- `bun dev`: Start development server
-- `bun build`: Build for production
-- `bun start`: Start production server
-- `bun lint`: Run linter with auto-fix
+
+- `pnpm dev`: Start development server
+- `pnpm build`: Build for production
+- `pnpm start`: Start production server
+- `pnpm lint`: Run linter with auto-fix
 
 ## Code Quality
+
 - ESLint enforces code style and best practices
 - Husky runs pre-commit hooks
 - Commitlint ensures commit message consistency

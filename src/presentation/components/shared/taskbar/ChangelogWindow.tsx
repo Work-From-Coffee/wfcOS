@@ -17,6 +17,22 @@ export const ChangelogContent = () => {
 
       <div className="space-y-4 mt-4">
         <div>
+          <h3 className="text-lg font-semibold">Version 3.1.0</h3>
+          <ul className="list-disc pl-5 space-y-1 text-sm">
+            <p className="font-bold underline">Offline Feature</p>
+            <li>wfcOS can use without internet connection</li>
+            <p className="font-bold underline">Platform</p>
+            <li>Migrated to the new website experience</li>
+            <p className="font-bold underline">Find Coffee Shop</p>
+            <li>New website to find working-friendly coffee shops</li>
+          </ul>
+          <h3 className="text-lg font-semibold">Version 3.0.0</h3>
+          <ul className="list-disc pl-5 space-y-1 text-sm">
+            <p className="font-bold underline">Platform</p>
+            <li>Removed the blog and content-only routes</li>
+            <li>Migrated the project to pnpm and Biome</li>
+            <li>Updated the app for a leaner Next.js 16 setup</li>
+          </ul>
           <h3 className="text-lg font-semibold">Version 2.3.1</h3>
           <ul className="list-disc pl-5 space-y-1 text-sm">
             <p className="font-bold underline">Blogs</p>

@@ -5,9 +5,7 @@ import TimerDisplay from "./components/TimerDisplay";
 import TimerControls from "./components/TimerControls";
 import TimerSettings from "./components/TimerSettings";
 import TimerManager from "./TimerManager";
-import { useEffect } from "react";
 import { useAtom, useAtomValue } from "jotai";
-import { resetTimerAtom } from "@/application/atoms/timerAtom";
 import {
   selectedTaskForTimerAtom,
   sortedSessionsAtom,
@@ -50,18 +48,10 @@ export const Timer = () => {
     stopAlarm,
   } = useTimer();
 
-  // Direct access to reset atom to avoid sound conflicts
-  const [, silentReset] = useAtom(resetTimerAtom);
   const incompleteTasks = useAtomValue(incompleteTasksAtom);
   const [selectedTaskId, setSelectedTaskId] = useAtom(selectedTaskForTimerAtom);
   const sessions = useAtomValue(sortedSessionsAtom);
   const currentDate = new Date();
-
-  // Reset timer when component mounts (reopens)
-  useEffect(() => {
-    // Use silent reset to avoid sound conflict errors
-    silentReset();
-  }, [silentReset]);
 
   // Calculate data for ActivitySummary
   const localTodayDateString = `${currentDate.getFullYear()}-${String(

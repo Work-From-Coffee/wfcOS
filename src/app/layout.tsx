@@ -1,22 +1,28 @@
 import type { Metadata } from "next";
-import { Itim } from "next/font/google";
 import "@/presentation/styles/globals.css";
+import { siteUrl } from "@/infrastructure/config/site";
+import { ServiceWorkerRegistration } from "@/presentation/components/shared/service-worker/ServiceWorkerRegistration";
 import JotaiProvider from "@/providers/JotaiProvider";
 import { GoogleAnalytics } from "@next/third-parties/google";
 
-const font = Itim({ weight: "400", subsets: ["latin"] });
+export const viewport = {
+  themeColor: "#2d2417",
+};
+
+const gaId = process.env.NEXT_PUBLIC_GA_ID;
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://workfromcoffee.com"),
-  title: "Work from Coffee | Award-Winning app for Focus & Productivity",
+  metadataBase: new URL(siteUrl),
+  manifest: "/manifest.webmanifest",
+  title: "Work from Coffee | Focus Workspace",
   description:
-    "Virtual desktop designed for deep focus and remote work productivity. All-in-one workspace with integrated to-do lists, timers, notepads, music, and ambience for distraction-free work.",
+    "Virtual desktop for deep focus and remote work productivity with integrated to-do lists, timers, notepads, music, and ambience.",
   openGraph: {
     images: "/metadata/wfc-og.png",
     title: "Work from Coffee",
     description:
       "Virtual desktop designed for deep focus and remote work productivity. All-in-one workspace with integrated to-do lists, timers, notepads, music, and ambience for distraction-free work.",
-    url: "https://workfromcoffee.com",
+    url: siteUrl,
     siteName: "Work from Coffee",
     locale: "en_US",
     type: "website",
@@ -45,9 +51,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={font.className}>
+      <body>
+        <ServiceWorkerRegistration />
         <JotaiProvider>{children}</JotaiProvider>
-        <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID || ""} />
+        {gaId ? <GoogleAnalytics gaId={gaId} /> : null}
       </body>
     </html>
   );

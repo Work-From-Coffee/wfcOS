@@ -1,15 +1,48 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useAtomValue } from "jotai";
-import { activeBackgroundAtom } from "@/application/atoms/backgroundAtom";
+import {
+  activeBackgroundAtom,
+  isCustomBackgroundUrl,
+} from "@/application/atoms/backgroundAtom";
 import Image from "next/image";
+import { getUploadedBackgroundObjectUrl } from "@/infrastructure/utils/backgroundImageStorage";
 
 export const DesktopBackground = () => {
   const settings = useAtomValue(activeBackgroundAtom);
+  const [resolvedUrl, setResolvedUrl] = useState<string | null>(settings.url);
+
+  useEffect(() => {
+    let isMounted = true;
+    let objectUrl: string | null = null;
+
+    const resolveBackground = async () => {
+      if (!isCustomBackgroundUrl(settings.url)) {
+        if (isMounted) {
+          setResolvedUrl(settings.url);
+        }
+        return;
+      }
+
+      objectUrl = await getUploadedBackgroundObjectUrl();
+      if (isMounted) {
+        setResolvedUrl(objectUrl);
+      }
+    };
+
+    void resolveBackground();
+
+    return () => {
+      isMounted = false;
+      if (objectUrl) {
+        URL.revokeObjectURL(objectUrl);
+      }
+    };
+  }, [settings.url]);
 
   // If no background is selected, return just a background color
-  if (!settings.url) {
+  if (!resolvedUrl) {
     return <div className="fixed inset-0 w-full h-full -z-20 bg-background" />;
   }
 
@@ -37,21 +70,33 @@ export const DesktopBackground = () => {
       <div
         className="fixed inset-0 w-full h-full -z-20"
         style={{
-          backgroundImage: `url(${settings.url})`,
+          backgroundImage: `url(${resolvedUrl})`,
           backgroundRepeat: "repeat",
         }}
       />
     );
   }
 
+  if (resolvedUrl.startsWith("blob:") || resolvedUrl.startsWith("data:")) {
+    return (
+      <div className="fixed inset-0 w-full h-full -z-20">
+        <img
+          src={resolvedUrl}
+          alt="Desktop background"
+          className={`w-full h-full ${getObjectFit()}`}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="fixed inset-0 w-full h-full -z-20">
       <Image
-        src={settings.url}
+        src={resolvedUrl}
         alt="Desktop background"
         fill
-        priority
-        quality={100}
+        quality={80}
+        sizes="100vw"
         className={getObjectFit()}
       />
     </div>

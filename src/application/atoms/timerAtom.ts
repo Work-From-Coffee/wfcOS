@@ -3,6 +3,7 @@ import {
   loadFeatureState,
   saveFeatureState,
 } from "@/infrastructure/utils/storage";
+import { selectedTaskForTimerAtom } from "@/application/atoms/sessionAtoms";
 
 const FEATURE_KEY = "timer";
 const DEFAULT_WORK_TIME = 25 * 60; // 25 minutes
@@ -25,6 +26,10 @@ export interface TimerState {
   sessionStartTime: number | null; // Timestamp when the current work session started
   workCycleDuration: number | null; // Original duration of the current work cycle in seconds
   isAlarming: boolean; // True when the timer has completed and the alarm is sounding
+  startedAt: number | null; // Timestamp when the current active countdown started/resumed
+  expectedEndTime: number | null; // Absolute end time for recovery across reloads
+  activeTaskId: string | null; // Task linked to the active timer session
+  completionLogged: boolean; // Guards exactly-once session logging
 }
 
 // Helper function to get the correct duration in seconds based on the current setting
@@ -67,18 +72,19 @@ export const initialTimerState: TimerState = (() => {
     sessionStartTime: null,
     workCycleDuration: DEFAULT_WORK_TIME,
     isAlarming: false, // Default alarm state
+    startedAt: null,
+    expectedEndTime: null,
+    activeTaskId: null,
+    completionLogged: false,
   };
 
   // Merge saved state with defaults, ensuring new fields have defaults
   const mergedState = {
     ...defaults,
     ...savedState,
-    isRunning: false, // Crucial: ensure timer isn't running on load regardless of saved state
-    isActive: false, // Ensure timer is inactive on load
-    windowId: null, // Ensure no window association on load
-    sessionStartTime: null, // Ensure no session start time on load
-    isAlarming: false, // Ensure alarm is not sounding on load
-    // workCycleDuration will be set based on timerSetting if not present
+    // Keep runtime UI/window state local to the current page load.
+    isActive: false,
+    windowId: null,
   };
 
   // Set initial timeRemaining and workCycleDuration based on merged settings
@@ -137,18 +143,23 @@ export const restartAndGoAtom = atom(null, (get, set) => {
     currentState.timerSetting,
     currentState.customDurationMinutes
   );
+  const now = Date.now();
+  const selectedTaskId = get(selectedTaskForTimerAtom);
+  const activeTaskId =
+    currentState.timerSetting === "work25" ? selectedTaskId : null;
 
   // The new state is: reset and running
-  // This applies to all timer settings (work, short break, long break, custom)
-  // sessionStartTime is set, which is primarily used for logging work/custom sessions.
-  // For breaks, it will be set but not used for logging.
   set(timerAtom, {
-    ...currentState, // Preserve settings like customTitle, timerSetting, windowId, isMinimized, isActive etc.
+    ...currentState,
     timeRemaining: resetDuration,
-    isRunning: true, // Timer starts immediately
-    sessionStartTime: Date.now(), // Mark the start of the new session/cycle
-    workCycleDuration: resetDuration, // Reflects the duration of this new cycle
-    isAlarming: false, // Ensure alarm is off when restarting
+    isRunning: true,
+    sessionStartTime: now,
+    workCycleDuration: resetDuration,
+    isAlarming: false,
+    startedAt: now,
+    expectedEndTime: now + resetDuration * 1000,
+    activeTaskId,
+    completionLogged: false,
   });
 });
 
@@ -160,33 +171,42 @@ export const startPauseTimerAtom = atom(
   (get, set) => {
     const currentTimerState = get(timerAtom);
     const newIsRunning = !currentTimerState.isRunning;
+    const now = Date.now();
 
     if (newIsRunning) {
-      // Timer is starting
-      // Only set startTime if it's a work session and not already started
-      if (
-        (currentTimerState.timerSetting === "work25" ||
-          currentTimerState.timerSetting === "custom") &&
-        !currentTimerState.sessionStartTime
-      ) {
-        set(timerAtom, (prev) => ({
+      const selectedTaskId = get(selectedTaskForTimerAtom);
+      set(timerAtom, (prev) => {
+        const cycleDuration = getDurationForSetting(
+          prev.timerSetting,
+          prev.customDurationMinutes
+        );
+        const shouldTrackSession =
+          prev.timerSetting === "work25" || prev.timerSetting === "custom";
+
+        return {
           ...prev,
-          isRunning: newIsRunning,
-          sessionStartTime: Date.now(),
-          // Ensure workCycleDuration reflects the current setting when starting
-          workCycleDuration: getDurationForSetting(
-            prev.timerSetting,
-            prev.customDurationMinutes
-          ),
-        }));
-      } else {
-        set(timerAtom, (prev) => ({ ...prev, isRunning: newIsRunning }));
-      }
+          isRunning: true,
+          sessionStartTime:
+            shouldTrackSession && !prev.sessionStartTime
+              ? now
+              : prev.sessionStartTime,
+          workCycleDuration: prev.workCycleDuration ?? cycleDuration,
+          startedAt: now,
+          expectedEndTime: now + prev.timeRemaining * 1000,
+          activeTaskId:
+            prev.timerSetting === "work25"
+              ? prev.activeTaskId ?? selectedTaskId
+              : null,
+          completionLogged: false,
+        };
+      });
     } else {
-      // Timer is pausing
-      // Optionally, clear sessionStartTime if paused, or keep it to resume session.
-      // For now, let's keep it to allow resuming.
-      set(timerAtom, (prev) => ({ ...prev, isRunning: newIsRunning }));
+      set(timerAtom, (prev) => ({
+        ...prev,
+        isRunning: false,
+        startedAt: null,
+        expectedEndTime: null,
+      }));
     }
   }
 );
@@ -211,10 +231,14 @@ export const resetTimerAtom = atom(null, (get, set) => {
     return {
       ...prev,
       timeRemaining: newTimeRemaining,
-      isRunning: false, // Stop timer on reset
-      sessionStartTime: null, // Clear session start time on reset
-      workCycleDuration: newTimeRemaining, // Update work cycle duration on reset
-      isAlarming: false, // Ensure alarm is off on reset
+      isRunning: false,
+      sessionStartTime: null,
+      workCycleDuration: newTimeRemaining,
+      isAlarming: false,
+      startedAt: null,
+      expectedEndTime: null,
+      activeTaskId: null,
+      completionLogged: false,
     };
   });
 });
@@ -232,10 +256,14 @@ export const setTimerSettingAtom = atom(
         ...prev,
         timerSetting: newSetting,
         timeRemaining: newTimeRemaining,
-        isRunning: false, // Stop timer on setting change
-        sessionStartTime: null, // Clear session start time on setting change
-        workCycleDuration: newTimeRemaining, // Update work cycle duration
-        isAlarming: false, // Ensure alarm is off when changing settings
+        isRunning: false,
+        sessionStartTime: null,
+        workCycleDuration: newTimeRemaining,
+        isAlarming: false,
+        startedAt: null,
+        expectedEndTime: null,
+        activeTaskId: null,
+        completionLogged: false,
       };
     });
   }
@@ -274,7 +302,23 @@ export const setCustomDurationAtom = atom(
           prev.timerSetting === "custom" && shouldStopTimer
             ? null
             : prev.sessionStartTime,
-        workCycleDuration: updatedWorkCycleDuration, // Assign the potentially updated value
+        workCycleDuration: updatedWorkCycleDuration,
+        startedAt:
+          prev.timerSetting === "custom" && shouldStopTimer
+            ? null
+            : prev.startedAt,
+        expectedEndTime:
+          prev.timerSetting === "custom" && shouldStopTimer
+            ? null
+            : prev.expectedEndTime,
+        activeTaskId:
+          prev.timerSetting === "custom" && shouldStopTimer
+            ? null
+            : prev.activeTaskId,
+        completionLogged:
+          prev.timerSetting === "custom" && shouldStopTimer
+            ? false
+            : prev.completionLogged,
       };
     });
   }
@@ -324,28 +368,23 @@ export const handleTimerOpen = (set: JotaiSet, windowId: string) => {
  */
 export const handleTimerClose = (set: JotaiSet, windowId: string) => {
   set(timerAtom, (prev) => {
-    // Only act if the closing window is the currently active timer window
     if (prev.windowId !== windowId) {
       return prev;
     }
-
-    const newTimeRemaining = getDurationForSetting(
-      prev.timerSetting,
-      prev.customDurationMinutes
-    );
-
-    // Dispatch reset event to ensure the worker stops/resets
-    if (typeof window !== "undefined") {
-      window.dispatchEvent(new CustomEvent("timer-reset"));
-    }
+    const remainingTime =
+      prev.isRunning && prev.expectedEndTime
+        ? Math.max(0, Math.ceil((prev.expectedEndTime - Date.now()) / 1000))
+        : prev.timeRemaining;
 
     return {
       ...prev,
-      timeRemaining: newTimeRemaining,
+      timeRemaining: remainingTime,
       isRunning: false,
       windowId: null,
       isMinimized: false,
-      isActive: false, // Mark timer as inactive
+      isActive: false,
+      startedAt: null,
+      expectedEndTime: null,
     };
   });
 };

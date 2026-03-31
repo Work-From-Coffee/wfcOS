@@ -1,44 +1,29 @@
 "use client";
 
-import { useState } from "react";
-import { useAtom, useSetAtom } from "jotai";
 import {
-  Check,
-  Pencil,
-  Play,
-  Pause,
-  Trash2,
-  X,
-  GripVertical,
-  ArrowUpDown,
-  ArrowDown,
-  ArrowUp,
-  Plus,
-} from "lucide-react";
-import {
-  musicPlayerAtom,
-  getYoutubeId,
-  addSongAtom,
-  removeSongAtom,
-  updateSongTitleAtom,
-  playPauseAtom,
-  persistedMusicPlayerAtom,
-  playerTimeAtom,
-  volatileMusicPlayerAtom,
-  reorderPlaylistAtom,
-  sortPlaylistAtom,
   type PersistedMusicPlayerState,
   type VolatileMusicPlayerState,
+  addSongAtom,
+  getYoutubeId,
+  musicPlayerAtom,
+  persistedMusicPlayerAtom,
+  playPauseAtom,
+  playerTimeAtom,
+  removeSongAtom,
+  reorderPlaylistAtom,
+  sortPlaylistAtom,
+  updateSongTitleAtom,
+  volatileMusicPlayerAtom,
 } from "@/application/atoms/musicPlayerAtom";
 import { Song } from "@/application/atoms/musicPlayerAtom";
 import {
   DndContext,
-  closestCenter,
+  DragEndEvent,
   KeyboardSensor,
   PointerSensor,
+  closestCenter,
   useSensor,
   useSensors,
-  DragEndEvent,
 } from "@dnd-kit/core";
 import {
   SortableContext,
@@ -47,6 +32,21 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import { useAtom, useSetAtom } from "jotai";
+import {
+  ArrowDown,
+  ArrowUp,
+  ArrowUpDown,
+  Check,
+  GripVertical,
+  Pause,
+  Pencil,
+  Play,
+  Plus,
+  Trash2,
+  X,
+} from "lucide-react";
+import { useState } from "react";
 
 // Sortable Song Item Component Props
 interface SortableSongItemProps {
@@ -110,23 +110,23 @@ const SortableSongItem = ({
           <div
             {...attributes}
             {...listeners}
-            className="cursor-grab active:cursor-grabbing text-muted-foreground hover:text-foreground flex-shrink-0"
+            className="cursor-grab active:cursor-grabbing text-muted-foreground hover:text-foreground shrink-0"
           >
             <GripVertical className="w-4 h-4" />
           </div>
 
           {index === isCurrentSong ? (
             isPlaying ? (
-              <span className="text-primary flex-shrink-0">
+              <span className="text-primary shrink-0">
                 <Play className="w-4 h-4" />
               </span>
             ) : (
-              <span className="text-muted-foreground flex-shrink-0">
+              <span className="text-muted-foreground shrink-0">
                 <Pause className="w-4 h-4" />
               </span>
             )
           ) : (
-            <span className="w-4 h-4 flex-shrink-0"></span>
+            <span className="w-4 h-4 shrink-0"></span>
           )}
 
           {editingIndex === index ? (
@@ -173,14 +173,14 @@ const SortableSongItem = ({
           <div className="flex items-center gap-1">
             <button
               onClick={(e) => onStartEditing(e, index)}
-              className="text-muted-foreground hover:text-primary p-1 rounded-full hover:bg-muted flex-shrink-0"
+              className="text-muted-foreground hover:text-primary p-1 rounded-full hover:bg-muted shrink-0"
               aria-label={`Edit ${song.title}`}
             >
               <Pencil className="w-4 h-4" />
             </button>
             <button
               onClick={(e) => onRemoveSong(e, index)}
-              className="text-muted-foreground hover:text-destructive p-1 rounded-full hover:bg-muted flex-shrink-0"
+              className="text-muted-foreground hover:text-destructive p-1 rounded-full hover:bg-muted shrink-0"
               aria-label={`Remove ${song.title}`}
             >
               <Trash2 className="w-4 h-4" />
@@ -349,7 +349,7 @@ const PlaylistManager = () => {
   };
 
   return (
-    <div className="flex-1 overflow-hidden flex flex-col">
+    <div className="flex flex-col">
       {/* Add Song Form */}
       <form onSubmit={handleAddSong} className="mb-4">
         <div className="flex ">
@@ -358,7 +358,7 @@ const PlaylistManager = () => {
             value={newSongUrl}
             onChange={(e) => setNewSongUrl(e.target.value)}
             placeholder="Enter YouTube URL"
-            className="flex-grow min-w-0 p-2 rounded-l-md bg-input border border-border focus:outline-none focus:ring-1 focus:ring-ring text-foreground"
+            className="grow min-w-0 p-2 rounded-l-md bg-input border border-border focus:outline-none focus:ring-1 focus:ring-ring text-foreground"
             required
           />
           <button
@@ -439,8 +439,8 @@ const PlaylistManager = () => {
       </div>
 
       {/* Playlist */}
-      <div className="flex-1 overflow-hidden">
-        <div className="overflow-y-auto max-h-[calc(100%-30px)] bg-muted/50 rounded-md">
+      <div>
+        <div className="rounded-md bg-muted/50">
           {playerState.playlist.length > 0 ? (
             <DndContext
               sensors={sensors}

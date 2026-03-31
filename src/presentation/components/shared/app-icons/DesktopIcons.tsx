@@ -6,6 +6,7 @@ import { appRegistry } from "@/infrastructure/config/appRegistry";
 import { AppIcon } from "./AppIcon";
 import { playSound } from "@/infrastructure/lib/utils";
 import { openWindowAtom } from "@/application/atoms/windowAtoms";
+import { openExternalUrl } from "@/infrastructure/utils/externalNavigation";
 
 export const DesktopIcons = () => {
   const [selectedAppId, setSelectedAppId] = useState<string | null>(null);
@@ -26,11 +27,16 @@ export const DesktopIcons = () => {
     const appConfig = appRegistry[appId];
     if (!appConfig) return;
 
+    if (appConfig.externalUrl) {
+      playSound("/sounds/click.mp3");
+      openExternalUrl(appConfig.externalUrl);
+      setSelectedAppId(appId);
+      return;
+    }
+
     const windowInstanceId = `${appId}-instance`;
 
     playSound("/sounds/open.mp3");
-
-    // Call openWindow atom - it handles existing/new/minimized logic internally
     openWindow({
       id: windowInstanceId,
       appId: appId,

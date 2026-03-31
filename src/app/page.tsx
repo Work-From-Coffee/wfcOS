@@ -3,10 +3,13 @@ import { Taskbar } from "@/presentation/components/shared/taskbar";
 import { DesktopBackground } from "@/presentation/components/shared/desktop-background/desktop-background";
 import { Window } from "@/presentation/components/shared/window/Window";
 import { AdsPopup } from "@/presentation/components/shared/ads/AdsPopup";
+import { AnnouncementPopup } from "@/presentation/components/shared/announcement/AnnouncementPopup";
+import { StorageMigrationReceiver } from "@/presentation/components/shared/migration/StorageMigrationReceiver";
 export default function Page() {
   return (
     <div className="h-screen w-screen overflow-hidden">
       <DesktopBackground />
+      <StorageMigrationReceiver />
       <Window />
       <div className="h-full w-full flex flex-col p-4 md:p-5 lg:p-6">
         <Taskbar />
@@ -14,6 +17,7 @@ export default function Page() {
           <DesktopIcons />
         </div>
       </div>
+      <AnnouncementPopup />
       <AdsPopup />
     </div>
   );

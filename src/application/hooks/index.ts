@@ -12,3 +12,4 @@ export * from "./useDeviceDetect";
 export * from "./useToast";
 export * from "./useTodoList";
 export * from "./useAmbienceAudio";
+export * from "./useOnlineStatus";

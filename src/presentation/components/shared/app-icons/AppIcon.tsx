@@ -53,6 +53,8 @@ export const AppIcon = ({
         alt={name}
         width={60}
         height={60}
+        loading="eager"
+        style={{ height: "auto" }}
         className={`drop-shadow-lg`}
       />
       <p className="px-1 font-tight shadow-lg mt-1 rounded text-sm bg-white text-primary">

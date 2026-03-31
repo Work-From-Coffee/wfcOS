@@ -17,6 +17,7 @@ import { openWindowAtom } from "@/application/atoms/windowAtoms";
 import { ResetDialog } from "./ResetDialog";
 import { useOpenChangelog } from "./ChangelogWindow";
 import { Lock } from "lucide-react";
+import { openExternalUrl } from "@/infrastructure/utils/externalNavigation";
 
 export const TaskbarMenu = () => {
   const openWindow = useAtom(openWindowAtom)[1];
@@ -27,6 +28,12 @@ export const TaskbarMenu = () => {
   const openApp = (appId: string) => {
     const appConfig = appRegistry[appId];
     if (!appConfig) return;
+
+    if (appConfig.externalUrl) {
+      playSound("/sounds/click.mp3");
+      openExternalUrl(appConfig.externalUrl);
+      return;
+    }
 
     playSound("/sounds/open.mp3");
 
@@ -44,7 +51,7 @@ export const TaskbarMenu = () => {
   // Function to open URL in the current window
   const openUrl = (url: string) => {
     playSound("/sounds/click.mp3");
-    window.open(url, "_blank");
+    openExternalUrl(url);
   };
 
   // Function to open reset dialog
@@ -63,7 +70,14 @@ export const TaskbarMenu = () => {
     <>
       <MenubarMenu>
         <div className="px-1">
-          <Image src="/icons/coffee.png" alt="coffee" width={20} height={20} />
+          <Image
+            src="/icons/coffee.png"
+            alt="coffee"
+            width={24}
+            height={24}
+            loading="eager"
+            style={{ width: "24px", height: "24px" }}
+          />
         </div>
       </MenubarMenu>
       <MenubarMenu>
@@ -71,9 +85,6 @@ export const TaskbarMenu = () => {
           Menu
         </MenubarTrigger>
         <MenubarContent>
-          <MenubarItem inset onSelect={() => openUrl("/blog")}>
-            Blog
-          </MenubarItem>
           <MenubarItem
             inset
             onSelect={() => openUrl("https://workfromcoffee.featurebase.app")}
@@ -104,10 +115,16 @@ export const TaskbarMenu = () => {
                   onSelect={() => openApp(appId)}
                   className="flex items-center gap-2"
                 >
-                  <Image src={app.src} alt={app.name} width={16} height={16} />
+                  <Image
+                    src={app.src}
+                    alt={app.name}
+                    width={16}
+                    height={16}
+                    style={{ height: "auto" }}
+                  />
                   {app.name}
                 </MenubarItem>
-              )
+              ),
           )}
           <MenubarSeparator />
           <MenubarItem
@@ -125,7 +142,7 @@ export const TaskbarMenu = () => {
         </MenubarTrigger>
         <MenubarContent>
           <MenubarItem disabled>
-            WFC OS<MenubarShortcut>v 2.3.1</MenubarShortcut>
+            WFC OS<MenubarShortcut>v 3.1.0</MenubarShortcut>
           </MenubarItem>
           <MenubarItem inset onSelect={openChangelogWindow}>
             Changelog<MenubarShortcut>history</MenubarShortcut>

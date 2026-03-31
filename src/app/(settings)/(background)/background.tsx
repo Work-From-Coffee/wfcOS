@@ -1,13 +1,18 @@
 import React, { useState, useEffect } from "react";
-import { useAtom, useSetAtom } from "jotai";
+import { useAtom } from "jotai";
 import {
   backgroundSettingsAtom,
   BackgroundSettings,
   previewBackgroundAtom,
-  applyPreviewBackgroundAtom,
   BackgroundFit,
+  CUSTOM_BACKGROUND_URL,
+  isCustomBackgroundUrl,
 } from "@/application/atoms/backgroundAtom";
 import { playSound } from "@/infrastructure/lib/utils";
+import {
+  getUploadedBackgroundObjectUrl,
+  saveUploadedBackground,
+} from "@/infrastructure/utils/backgroundImageStorage";
 
 // Import the components
 import { BackgroundSelector } from "./components/BackgroundSelector";
@@ -24,9 +29,8 @@ interface BackgroundChangerProps {
 export const BackgroundChanger: React.FC<BackgroundChangerProps> = ({
   onClose,
 }) => {
-  const [savedSettings] = useAtom(backgroundSettingsAtom);
+  const [savedSettings, setSavedSettings] = useAtom(backgroundSettingsAtom);
   const [previewSettings, setPreviewSettings] = useAtom(previewBackgroundAtom);
-  const applyPreview = useSetAtom(applyPreviewBackgroundAtom);
 
   // Initialize temp settings to saved settings
   const [tempSettings, setTempSettings] =
@@ -38,12 +42,41 @@ export const BackgroundChanger: React.FC<BackgroundChangerProps> = ({
     setTempSettings(savedSettings);
   }, [savedSettings]);
 
-  // Effect to check if the saved URL is a custom one (data URL)
+  // Load the saved uploaded image preview from durable local storage.
   useEffect(() => {
-    if (savedSettings.url && savedSettings.url.startsWith("data:image")) {
-      setUploadedImage(savedSettings.url);
-    }
-  }, [savedSettings.url]);
+    let isMounted = true;
+    let objectUrl: string | null = null;
+
+    const loadUploadedImage = async () => {
+      if (savedSettings.url?.startsWith("data:image")) {
+        const persistedUrl = await saveUploadedBackground(savedSettings.url);
+        if (!isMounted) return;
+        setSavedSettings((prev) => ({ ...prev, url: persistedUrl }));
+        setTempSettings((prev) => ({ ...prev, url: persistedUrl }));
+      }
+
+      if (!isCustomBackgroundUrl(savedSettings.url)) {
+        if (isMounted) {
+          setUploadedImage(null);
+        }
+        return;
+      }
+
+      objectUrl = await getUploadedBackgroundObjectUrl();
+      if (isMounted) {
+        setUploadedImage(objectUrl);
+      }
+    };
+
+    void loadUploadedImage();
+
+    return () => {
+      isMounted = false;
+      if (objectUrl) {
+        URL.revokeObjectURL(objectUrl);
+      }
+    };
+  }, [savedSettings.url, setSavedSettings]);
 
   // Update global preview whenever local temp settings change
   useEffect(() => {
@@ -76,9 +109,25 @@ export const BackgroundChanger: React.FC<BackgroundChangerProps> = ({
     setUploadedImage(image);
   };
 
-  const handleApply = () => {
+  const handleApply = async () => {
     playSound("/sounds/click.mp3", "apply");
-    applyPreview();
+    let nextSettings = tempSettings;
+
+    if (tempSettings.url?.startsWith("data:image")) {
+      const persistedUrl = await saveUploadedBackground(tempSettings.url);
+      nextSettings = {
+        ...tempSettings,
+        url: persistedUrl,
+      };
+    } else if (tempSettings.url === CUSTOM_BACKGROUND_URL) {
+      nextSettings = {
+        ...tempSettings,
+        url: CUSTOM_BACKGROUND_URL,
+      };
+    }
+
+    setSavedSettings(nextSettings);
+    setPreviewSettings(null);
     onClose?.();
   };
 

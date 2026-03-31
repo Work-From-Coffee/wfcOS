@@ -1,9 +1,15 @@
 import { atom } from "jotai";
+import { selectAtom } from "jotai/utils";
 import {
   loadFeatureState,
   saveFeatureState,
 } from "../../infrastructure/utils/storage";
 import { Position, Size } from "@/application/types/window"; // Assuming types are defined here
+import {
+  handleTimerClose,
+  handleTimerMinimize,
+  handleTimerOpen,
+} from "@/application/atoms/timerAtom";
 
 const FEATURE_KEY = "windows";
 
@@ -93,6 +99,18 @@ export const minimizedWindowsAtom = atom(
       .sort((a, b) => (a?.appId ?? "").localeCompare(b?.appId ?? "")) // Add null checks
 );
 
+export const openWindowIdsAtom = selectAtom(
+  windowRegistryAtom,
+  (registry) =>
+    Object.values(registry)
+      .filter((win) => win?.isOpen)
+      .sort((a, b) => (a?.zIndex ?? 0) - (b?.zIndex ?? 0))
+      .map((win) => win.id),
+  (prev, next) =>
+    prev.length === next.length &&
+    prev.every((windowId, index) => windowId === next[index])
+);
+
 // --- Window Management Action Atoms (Write-only) ---
 
 // Atom to open/create a new window or bring an existing one to front
@@ -150,6 +168,10 @@ export const openWindowAtom = atom(
       }));
     }
 
+    if (windowConfig.appId === "timer") {
+      handleTimerOpen(set, windowIdToUpdate);
+    }
+
     // Bring the window to front (redundant if new, necessary if existing)
     // We already set the zIndex above.
   }
@@ -173,6 +195,10 @@ export const closeWindowAtom = atom(null, (get, set, windowId: string) => {
     }
     return newState;
   });
+
+  if (windowToClose.appId === "timer") {
+    handleTimerClose(set, windowId);
+  }
 });
 
 // Atom to explicitly set the minimized state of a window
@@ -213,6 +239,11 @@ export const setWindowMinimizedStateAtom = atom(
         [windowId]: updatedWindowState,
       };
     });
+
+    const targetWindow = get(windowRegistryAtom)[windowId];
+    if (targetWindow?.appId === "timer") {
+      handleTimerMinimize(set, windowId, isMinimized);
+    }
   }
 );
 

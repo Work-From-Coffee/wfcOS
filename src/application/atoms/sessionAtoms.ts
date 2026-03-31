@@ -6,6 +6,7 @@ import {
 } from "@/infrastructure/utils/storage";
 
 const FEATURE_KEY = "work_sessions";
+const SELECTED_TASK_FEATURE_KEY = "timer_selected_task";
 
 // Load initial state from localStorage or use default (empty array)
 const initialSessions = loadFeatureState<Session[]>(FEATURE_KEY) ?? [];
@@ -30,8 +31,18 @@ export const sessionsAtom = atom(
   }
 );
 
+const baseSelectedTaskForTimerAtom = atom<string | null>(
+  loadFeatureState<string | null>(SELECTED_TASK_FEATURE_KEY) ?? null
+);
+
 // Atom to store the ID of the task selected for the current timer session
-export const selectedTaskForTimerAtom = atom<string | null>(null);
+export const selectedTaskForTimerAtom = atom(
+  (get) => get(baseSelectedTaskForTimerAtom),
+  (get, set, nextTaskId: string | null) => {
+    set(baseSelectedTaskForTimerAtom, nextTaskId);
+    saveFeatureState(SELECTED_TASK_FEATURE_KEY, nextTaskId);
+  }
+);
 
 // Helper to add a session
 // Expects duration in minutes

@@ -1,7 +1,13 @@
 services:
   app:
     build: .
+    restart: unless-stopped
     ports:
-      - "3000:3000"
+      - "4500:3000"
     env_file:
-      - .env
+      - path: .env
+        required: false
+    environment:
+      NODE_ENV: production
+      HOSTNAME: 0.0.0.0
+      PORT: 3000

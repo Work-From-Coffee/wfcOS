@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import dynamic from "next/dynamic";
 import { useAtomValue } from "jotai";
 import { sortedSessionsAtom } from "@/application/atoms/sessionAtoms";
 import {
@@ -8,8 +9,12 @@ import {
   getWeeklyChartData,
   getYearlyChartData,
 } from "../sessionLogUtils"; // Path relative to this new file (components/ -> (session-log)/)
-import { SessionLogCharts } from "./SessionLogCharts"; // Assuming SessionLogCharts.tsx is in the same directory
 import { type ChartConfig } from "@/presentation/components/ui/chart";
+
+const SessionLogCharts = dynamic(
+  () => import("./SessionLogCharts").then((mod) => mod.SessionLogCharts),
+  { ssr: false }
+);
 
 const chartConfig = {
   sessions: {

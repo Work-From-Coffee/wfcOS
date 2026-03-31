@@ -11,22 +11,24 @@ import { ChangelogWindow } from "@/presentation/components/shared/taskbar/Change
 import Bookmark from "@/app/(bookmark)/Bookmark";
 import { SettingsPanel } from "@/app/(settings)/SettingsPanel";
 import SessionLogApp from "@/app/(session-log)/SessionLogApp";
+import { StorageMigrationApp } from "@/app/(migration)/StorageMigrationApp";
 
 interface AppRegistryEntry {
   name: string; // The display name of the app
   src: string; // Path to the app icon
   defaultSize: Size;
   minSize?: Size;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   component: React.ComponentType<any>;
+  externalUrl?: string;
   hidden?: boolean; // Flag to hide app from desktop icons
+  onlineOnly?: boolean;
+  offlineMessage?: string;
 }
 
 // Settings module specific entries
 export interface SettingsEntry {
   id: string;
   name: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   component: React.ComponentType<any>;
   icon: string;
 }
@@ -78,6 +80,9 @@ export const appRegistry: Record<string, AppRegistryEntry> = {
     defaultSize: { width: 400, height: 600 },
     minSize: { width: 320, height: 400 },
     component: MusicPlayer,
+    onlineOnly: true,
+    offlineMessage:
+      "Music streaming needs an internet connection. Your playlist stays saved locally.",
   },
   notepad: {
     name: "Notepad",
@@ -100,6 +105,16 @@ export const appRegistry: Record<string, AppRegistryEntry> = {
     minSize: { width: 300, height: 300 },
     component: SettingsPanel,
   },
+  migrateData: {
+    name: "Migrate Data",
+    src: "/icons/news.png",
+    defaultSize: { width: 460, height: 360 },
+    minSize: { width: 360, height: 360 },
+    component: StorageMigrationApp,
+    onlineOnly: true,
+    offlineMessage:
+      "Data migration needs internet because it sends your local data to the new website.",
+  },
   changelog: {
     name: "Changelog",
     src: "/icons/default.png",
@@ -115,6 +130,30 @@ export const appRegistry: Record<string, AppRegistryEntry> = {
     minSize: { width: 450, height: 300 },
     component: SessionLogApp,
     hidden: true,
+  },
+  findCoffeeShop: {
+    name: "Find Coffee Shop",
+    src: "/icons/cafe.png",
+    defaultSize: { width: 400, height: 600 },
+    minSize: { width: 320, height: 400 },
+    component: SessionLogApp,
+    externalUrl: "https://beta.workfromcoffee.com/",
+  },
+  community: {
+    name: "Community",
+    src: "/icons/doughnut.png",
+    defaultSize: { width: 400, height: 600 },
+    minSize: { width: 320, height: 400 },
+    component: SessionLogApp,
+    externalUrl: "https://discord.gg/yPQ62P5BBr",
+  },
+  giveTips: {
+    name: "Buy Us a Coffee",
+    src: "/icons/tips.png",
+    defaultSize: { width: 400, height: 600 },
+    minSize: { width: 320, height: 400 },
+    component: SessionLogApp,
+    externalUrl: "https://workfromcoffee.gumroad.com/coffee",
   },
 };
 

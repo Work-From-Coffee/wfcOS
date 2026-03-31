@@ -9,6 +9,7 @@ import {
   prevSongAtom,
   toggleVideoAtom,
 } from "@/application/atoms/musicPlayerAtom";
+import { useOnlineStatus } from "@/application/hooks";
 
 const PlayerControls = () => {
   const [playerState] = useAtom(musicPlayerAtom);
@@ -16,6 +17,7 @@ const PlayerControls = () => {
   const [, nextSong] = useAtom(nextSongAtom);
   const [, prevSong] = useAtom(prevSongAtom);
   const [, toggleVideo] = useAtom(toggleVideoAtom);
+  const { isOnline } = useOnlineStatus();
 
   return (
     <div className="flex flex-col items-center space-y-4">
@@ -25,7 +27,7 @@ const PlayerControls = () => {
           onClick={prevSong}
           className="p-2 rounded-full bg-secondary hover:bg-secondary/80 text-secondary-foreground"
           aria-label="Previous"
-          disabled={playerState.playlist.length <= 1}
+          disabled={!isOnline || playerState.playlist.length <= 1}
         >
           <SkipBack className="w-5 h-5" />
         </button>
@@ -33,7 +35,7 @@ const PlayerControls = () => {
           onClick={togglePlay}
           className="p-3 rounded-full bg-primary hover:bg-primary/90 text-primary-foreground"
           aria-label={playerState.isPlaying ? "Pause" : "Play"}
-          disabled={playerState.playlist.length === 0}
+          disabled={!isOnline || playerState.playlist.length === 0}
         >
           {playerState.isPlaying ? (
             <Pause className="w-6 h-6" />
@@ -45,7 +47,7 @@ const PlayerControls = () => {
           onClick={nextSong}
           className="p-2 rounded-full bg-secondary hover:bg-secondary/80 text-secondary-foreground"
           aria-label="Next"
-          disabled={playerState.playlist.length <= 1}
+          disabled={!isOnline || playerState.playlist.length <= 1}
         >
           <SkipForward className="w-5 h-5" />
         </button>
@@ -56,7 +58,7 @@ const PlayerControls = () => {
         <button
           onClick={toggleVideo}
           className="px-3 py-1 text-sm rounded-md border border-border bg-muted hover:bg-muted/80 text-foreground flex items-center gap-2"
-          disabled={playerState.playlist.length === 0}
+          disabled={!isOnline || playerState.playlist.length === 0}
         >
           <Video className="w-4 h-4" />
           {playerState.showVideo ? "Hide Video" : "Show Video"}
