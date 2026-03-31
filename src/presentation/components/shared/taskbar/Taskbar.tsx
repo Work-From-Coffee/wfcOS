@@ -1,12 +1,14 @@
 "use client";
 
-import React from "react";
-import { Menubar } from "@/presentation/components/ui/menubar";
-import { TaskbarMenu } from "./TaskbarMenu";
-import { MinimizedIcons } from "./MinimizedIcons";
-import { TaskbarClock } from "./TaskbarClock";
-import { useAtom } from "jotai";
 import { minimizedWindowsAtom } from "@/application/atoms/windowAtoms";
+import { Menubar } from "@/presentation/components/ui/menubar";
+import { useAtom } from "jotai";
+import React from "react";
+import { MinimizedIcons } from "./MinimizedIcons";
+import { OfflineToggle } from "./OfflineToggle";
+import { SoundToggle } from "./SoundToggle";
+import { TaskbarClock } from "./TaskbarClock";
+import { TaskbarMenu } from "./TaskbarMenu";
 
 export const Taskbar = () => {
   // Get minimized windows from state to check if we need to show icons
@@ -20,7 +22,13 @@ export const Taskbar = () => {
         <TaskbarMenu />
         {/* Minimized icons display */}
         {hasMinimizedWindows && <MinimizedIcons />}
-        <TaskbarClock />
+        <div className="ml-auto flex items-center gap-3">
+          <div className="flex items-center space-x-1">
+            <SoundToggle />
+            <OfflineToggle />
+          </div>
+          <TaskbarClock />
+        </div>
       </Menubar>
     </>
   );
