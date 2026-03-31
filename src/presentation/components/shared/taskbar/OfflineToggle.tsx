@@ -11,6 +11,7 @@ import {
   OFFLINE_PACK_VERSION,
   OFFLINE_PACK_VERSION_STORAGE_KEY,
 } from "@/infrastructure/pwa/offlineAssets";
+import { preloadOfflineModules } from "@/infrastructure/pwa/preloadOfflineModules";
 import { Button } from "@/presentation/components/ui/button";
 import {
   MenubarContent,
@@ -77,7 +78,7 @@ export const OfflineToggle = () => {
 
       setDownloadProgress(OFFLINE_PACK_URLS.length);
       setOfflineState(
-        storedVersion === OFFLINE_PACK_VERSION ? "ready" : "update",
+        storedVersion === OFFLINE_PACK_VERSION ? "ready" : "update"
       );
     };
 
@@ -93,6 +94,7 @@ export const OfflineToggle = () => {
     setOfflineState("downloading");
     setDownloadProgress(0);
 
+    await preloadOfflineModules();
     const shellReady = await cacheCurrentAppShell();
     const result = await downloadOfflinePack(OFFLINE_PACK_URLS, {
       concurrency: 3,
