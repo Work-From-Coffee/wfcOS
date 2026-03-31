@@ -1,28 +1,11 @@
-import React from "react";
-import Image from "next/image";
 import { BackgroundSettings } from "@/application/atoms/backgroundAtom";
 import { playSound } from "@/infrastructure/lib/utils";
+import { cacheAssetInBackground } from "@/infrastructure/pwa/cacheAssets";
+import { BACKGROUND_URLS } from "@/infrastructure/pwa/offlineAssets";
+import Image from "next/image";
+import React from "react";
 
-// Constants
-const backgrounds = [
-  "/background/bg-1.webp",
-  "/background/bg-2.webp",
-  "/background/bg-3.webp",
-  "/background/bg-4.webp",
-  "/background/bg-5.webp",
-  "/background/bg-6.webp",
-  "/background/bg-7.webp",
-  "/background/bg-8.webp",
-  "/background/bg-9.webp",
-  "/background/bg-10.webp",
-  "/background/bg-11.webp",
-  "/background/bg-12.webp",
-  "/background/bg-13.webp",
-  "/background/bg-14.webp",
-  "/background/bg-15.webp",
-  "/background/bg-16.webp",
-  "/background/bg-17.webp",
-];
+const backgrounds = [...BACKGROUND_URLS];
 
 // Component for handling background image selection
 interface BackgroundSelectorProps {
@@ -36,6 +19,9 @@ export const BackgroundSelector = ({
 }: BackgroundSelectorProps) => {
   const handleSelectBackground = (bgUrl: string | null) => {
     playSound("/sounds/click.mp3");
+    if (bgUrl) {
+      void cacheAssetInBackground(bgUrl);
+    }
     onSelectBackground(bgUrl);
   };
 

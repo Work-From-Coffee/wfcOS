@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useRef, useState, useCallback } from "react";
+import { cacheAssetInBackground } from "@/infrastructure/pwa/cacheAssets";
 import {
   loadFeatureState,
   saveFeatureState,
 } from "@/infrastructure/utils/storage";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 // Sound definition (moved from atoms)
 export interface AmbienceSound {
@@ -200,17 +201,22 @@ export const useAmbienceAudio = () => {
   // --- Control Functions (Callbacks) ---
 
   const togglePlayPause = useCallback(() => {
+    if (!isPlaying) {
+      void cacheAssetInBackground(currentSound.source);
+    }
     // Mark user interaction on first play attempt
     if (!isPlaying && !isInitializedRef.current) {
       isInitializedRef.current = true;
     }
     setIsPlaying((prev) => !prev);
-  }, [isPlaying]);
+  }, [currentSound.source, isPlaying]);
 
   const nextTrack = useCallback(() => {
-    setCurrentSoundIndex(
-      (prevIndex) => (prevIndex + 1) % ambienceSounds.length
-    );
+    setCurrentSoundIndex((prevIndex) => {
+      const nextIndex = (prevIndex + 1) % ambienceSounds.length;
+      void cacheAssetInBackground(ambienceSounds[nextIndex].source);
+      return nextIndex;
+    });
     // Maintain initialization state if user has already played audio
     if (isInitializedRef.current) {
       // Don't set isPlaying to false, maintain current playback state
@@ -220,10 +226,12 @@ export const useAmbienceAudio = () => {
   }, []);
 
   const previousTrack = useCallback(() => {
-    setCurrentSoundIndex(
-      (prevIndex) =>
-        (prevIndex - 1 + ambienceSounds.length) % ambienceSounds.length
-    );
+    setCurrentSoundIndex((prevIndex) => {
+      const nextIndex =
+        (prevIndex - 1 + ambienceSounds.length) % ambienceSounds.length;
+      void cacheAssetInBackground(ambienceSounds[nextIndex].source);
+      return nextIndex;
+    });
     // Maintain initialization state if user has already played audio
     if (isInitializedRef.current) {
       // Don't set isPlaying to false, maintain current playback state
