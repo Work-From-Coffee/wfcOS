@@ -1,15 +1,17 @@
 "use client";
 
-import { useState } from "react";
-import { useAtom } from "jotai";
-import { appRegistry } from "@/infrastructure/config/appRegistry";
-import { AppIcon } from "./AppIcon";
-import { playSound } from "@/infrastructure/lib/utils";
 import { openWindowAtom } from "@/application/atoms/windowAtoms";
+import { useOnlineStatus } from "@/application/hooks";
+import { appRegistry } from "@/infrastructure/config/appRegistry";
+import { playSound } from "@/infrastructure/lib/utils";
 import { openExternalUrl } from "@/infrastructure/utils/externalNavigation";
+import { useAtom } from "jotai";
+import { useState } from "react";
+import { AppIcon } from "./AppIcon";
 
 export const DesktopIcons = () => {
   const [selectedAppId, setSelectedAppId] = useState<string | null>(null);
+  const { isOnline } = useOnlineStatus();
 
   // Window state management
   const openWindow = useAtom(openWindowAtom)[1];
@@ -29,7 +31,17 @@ export const DesktopIcons = () => {
 
     if (appConfig.externalUrl) {
       playSound("/sounds/click.mp3");
-      openExternalUrl(appConfig.externalUrl);
+      openExternalUrl(appConfig.externalUrl, appConfig.offlineMessage);
+      setSelectedAppId(appId);
+      return;
+    }
+
+    if (appConfig.onlineOnly && !isOnline) {
+      playSound("/sounds/click.mp3");
+      window.alert(
+        appConfig.offlineMessage ||
+          "This feature needs an internet connection and is not available offline yet."
+      );
       setSelectedAppId(appId);
       return;
     }

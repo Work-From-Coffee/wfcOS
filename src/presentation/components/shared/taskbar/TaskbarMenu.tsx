@@ -1,7 +1,10 @@
 "use client";
 
-import React, { useState } from "react";
-import Image from "next/image";
+import { openWindowAtom } from "@/application/atoms/windowAtoms";
+import { useOnlineStatus } from "@/application/hooks";
+import { appRegistry } from "@/infrastructure/config/appRegistry";
+import { playSound } from "@/infrastructure/lib/utils";
+import { openExternalUrl } from "@/infrastructure/utils/externalNavigation";
 import {
   MenubarContent,
   MenubarItem,
@@ -10,17 +13,16 @@ import {
   MenubarShortcut,
   MenubarTrigger,
 } from "@/presentation/components/ui/menubar";
-import { playSound } from "@/infrastructure/lib/utils";
-import { appRegistry } from "@/infrastructure/config/appRegistry";
 import { useAtom } from "jotai";
-import { openWindowAtom } from "@/application/atoms/windowAtoms";
-import { ResetDialog } from "./ResetDialog";
-import { useOpenChangelog } from "./ChangelogWindow";
 import { Lock } from "lucide-react";
-import { openExternalUrl } from "@/infrastructure/utils/externalNavigation";
+import Image from "next/image";
+import React, { useState } from "react";
+import { useOpenChangelog } from "./ChangelogWindow";
+import { ResetDialog } from "./ResetDialog";
 
 export const TaskbarMenu = () => {
   const openWindow = useAtom(openWindowAtom)[1];
+  const { isOnline } = useOnlineStatus();
   const [resetDialogOpen, setResetDialogOpen] = useState(false);
   const openChangelog = useOpenChangelog();
 
@@ -31,7 +33,16 @@ export const TaskbarMenu = () => {
 
     if (appConfig.externalUrl) {
       playSound("/sounds/click.mp3");
-      openExternalUrl(appConfig.externalUrl);
+      openExternalUrl(appConfig.externalUrl, appConfig.offlineMessage);
+      return;
+    }
+
+    if (appConfig.onlineOnly && !isOnline) {
+      playSound("/sounds/click.mp3");
+      window.alert(
+        appConfig.offlineMessage ||
+          "This feature needs an internet connection and is not available offline yet."
+      );
       return;
     }
 
@@ -124,7 +135,7 @@ export const TaskbarMenu = () => {
                   />
                   {app.name}
                 </MenubarItem>
-              ),
+              )
           )}
           <MenubarSeparator />
           <MenubarItem

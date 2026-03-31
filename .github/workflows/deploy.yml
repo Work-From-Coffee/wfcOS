@@ -14,7 +14,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     env:
-      APP_DIR: /root/apps/wfcos
+      APP_DIR: /root/apps/wfcOS
       REPO_SSH_URL: git@github.com:${{ github.repository }}.git
     steps:
       - name: Check out repository
@@ -44,29 +44,30 @@ jobs:
               git checkout main
               git reset --hard origin/main
 
-              echo "Build latest app image..."
-              docker compose build --pull app
-
-              APP_IMAGE_ID="$(docker compose images -q app)"
-
-              echo "Remove old application container..."
-              docker compose rm -sf app || true
-
-              echo "Start application service with forced recreation..."
-              docker compose up -d --no-deps --force-recreate app
+              echo "Build and recreate application service..."
+              docker compose up -d --build --force-recreate app
 
               echo "Check container..."
               docker compose ps
 
               RUNNING_APP_CONTAINER="$(docker compose ps -q app)"
-              RUNNING_APP_IMAGE_ID="$(docker inspect -f '{{.Image}}' "$RUNNING_APP_CONTAINER")"
-
-              test -n "$APP_IMAGE_ID"
               test -n "$RUNNING_APP_CONTAINER"
-              test "$RUNNING_APP_IMAGE_ID" = "$APP_IMAGE_ID"
 
               echo "Recent app logs..."
               docker compose logs --tail=20 app
+
+              echo "Wait for local app response..."
+              for i in $(seq 1 20); do
+                if curl -fsSI http://127.0.0.1:4500/ >/dev/null; then
+                  echo "App responded on attempt $i"
+                  break
+                fi
+                if [ "$i" -eq 20 ]; then
+                  echo "App did not become ready in time"
+                  exit 1
+                fi
+                sleep 2
+              done
 
               echo "Deploy done!"
           EOF
