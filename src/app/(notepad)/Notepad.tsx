@@ -1,28 +1,32 @@
 "use client";
 
-import React, { useCallback, useEffect, useState } from "react";
-import dynamic from "next/dynamic";
-import { useAtomValue, useSetAtom } from "jotai";
-import { PanelLeftClose, PanelLeftOpen } from "lucide-react";
-import { playSound } from "@/infrastructure/lib/utils";
 import {
   activeNoteIdAtom,
   createNewNote,
   notesAtom,
 } from "@/application/atoms/notepadAtom";
+import { playSound } from "@/infrastructure/lib/utils";
+import { useAtomValue, useSetAtom } from "jotai";
+import { PanelLeftClose, PanelLeftOpen } from "lucide-react";
+import dynamic from "next/dynamic";
+import React, { useCallback, useEffect, useState } from "react";
 import { NoteListSidebar } from "./components/NoteListSidebar";
 
-const NotepadEditor = dynamic(
-  () => import("./components/NotepadEditor").then((mod) => mod.NotepadEditor),
-  {
-    ssr: false,
-    loading: () => (
-      <div className="flex-grow flex items-center justify-center text-gray-500 bg-gray-50">
-        <p>Loading editor...</p>
-      </div>
-    ),
-  }
-);
+const loadNotepadEditor = () =>
+  import("./components/NotepadEditor").then((mod) => mod.NotepadEditor);
+
+export const preloadNotepadAssets = async () => {
+  await loadNotepadEditor();
+};
+
+const NotepadEditor = dynamic(loadNotepadEditor, {
+  ssr: false,
+  loading: () => (
+    <div className="grow flex items-center justify-center text-gray-500 bg-gray-50">
+      <p>Loading editor...</p>
+    </div>
+  ),
+});
 
 const Notepad: React.FC = () => {
   const notes = useAtomValue(notesAtom);
@@ -65,11 +69,11 @@ const Notepad: React.FC = () => {
         </div>
       </div>
 
-      <div className="flex-grow flex flex-col h-full">
+      <div className="grow flex flex-col h-full">
         {activeNoteId ? (
           <NotepadEditor activeNoteId={activeNoteId} />
         ) : (
-          <div className="flex-grow flex items-center justify-center text-gray-500 bg-gray-50">
+          <div className="grow flex items-center justify-center text-gray-500 bg-gray-50">
             {notes.length > 0 ? (
               <p>Loading note...</p>
             ) : (

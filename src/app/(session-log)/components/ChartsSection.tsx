@@ -1,20 +1,24 @@
 "use client";
 
-import React from "react";
-import dynamic from "next/dynamic";
-import { useAtomValue } from "jotai";
 import { sortedSessionsAtom } from "@/application/atoms/sessionAtoms";
+import { type ChartConfig } from "@/presentation/components/ui/chart";
+import { useAtomValue } from "jotai";
+import dynamic from "next/dynamic";
+import React from "react";
 import {
   getMonthlyChartData,
   getWeeklyChartData,
   getYearlyChartData,
 } from "../sessionLogUtils"; // Path relative to this new file (components/ -> (session-log)/)
-import { type ChartConfig } from "@/presentation/components/ui/chart";
 
-const SessionLogCharts = dynamic(
-  () => import("./SessionLogCharts").then((mod) => mod.SessionLogCharts),
-  { ssr: false }
-);
+const loadSessionLogCharts = () =>
+  import("./SessionLogCharts").then((mod) => mod.SessionLogCharts);
+
+export const preloadSessionLogAssets = async () => {
+  await loadSessionLogCharts();
+};
+
+const SessionLogCharts = dynamic(loadSessionLogCharts, { ssr: false });
 
 const chartConfig = {
   sessions: {
