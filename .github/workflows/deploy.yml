@@ -56,8 +56,18 @@ jobs:
               echo "Recent app logs..."
               docker compose logs --tail=20 app
 
-              echo "Verify local app response..."
-              curl -fsSI http://127.0.0.1:4500/
+              echo "Wait for local app response..."
+              for i in $(seq 1 20); do
+                if curl -fsSI http://127.0.0.1:4500/ >/dev/null; then
+                  echo "App responded on attempt $i"
+                  break
+                fi
+                if [ "$i" -eq 20 ]; then
+                  echo "App did not become ready in time"
+                  exit 1
+                fi
+                sleep 2
+              done
 
               echo "Deploy done!"
           EOF
